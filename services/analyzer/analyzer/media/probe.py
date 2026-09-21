@@ -1,15 +1,18 @@
 """ffprobe → duration, display size (rotation applied), fps, audio presence."""
 
 import json
+import logging
 import subprocess
 from fractions import Fraction
 from pathlib import Path
 
 from analyzer.models import Probe
 
+log = logging.getLogger(__name__)
+
 
 class ProbeError(Exception):
-    pass
+    """Message is shown to the creator, so keep it plain and path-free."""
 
 
 def _fps(rate: str | None) -> float:
@@ -72,5 +75,6 @@ def probe(path: Path) -> Probe:
         check=False,
     )
     if proc.returncode != 0:
-        raise ProbeError(f"ffprobe couldn't read this file: {proc.stderr.strip()[:300]}")
+        log.warning("ffprobe failed on %s: %s", path, proc.stderr.strip()[:500])
+        raise ProbeError("We couldn't read this video. Try exporting it again as MP4 or MOV.")
     return parse_ffprobe(json.loads(proc.stdout))
