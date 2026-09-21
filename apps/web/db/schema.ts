@@ -173,3 +173,24 @@ export const deals = pgTable("deals", {
   deliverables: jsonb("deliverables"),
   notes: text("notes"),
 });
+
+export const rightsKind = pgEnum("rights_kind", [
+  "usage",
+  "whitelisting",
+  "exclusivity",
+]);
+
+export const rightsWindows = pgTable("rights_windows", {
+  id: id(),
+  dealId: uuid("deal_id")
+    .notNull()
+    .references(() => deals.id, { onDelete: "cascade" }),
+  kind: rightsKind("kind").notNull(),
+  platforms: text("platforms").array(),
+  territories: text("territories").array(),
+  category: text("category"),
+  startsAt: timestamp("starts_at", { withTimezone: true }),
+  endsAt: timestamp("ends_at", { withTimezone: true }),
+  perpetual: boolean("perpetual").notNull().default(false),
+  sourceQuote: text("source_quote"),
+});
