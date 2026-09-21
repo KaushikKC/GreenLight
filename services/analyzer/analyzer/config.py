@@ -11,7 +11,7 @@ ROOT_ENV = Path(__file__).resolve().parents[3] / ".env"
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=ROOT_ENV, extra="ignore")
 
-    database_url: str = "postgres://greenlight:greenlight@localhost:5432/greenlight"
+    database_url: str = "postgres://greenlight:greenlight@localhost:5433/greenlight"
 
     worker_poll_interval_s: float = 1.5
     worker_max_attempts: int = 3
