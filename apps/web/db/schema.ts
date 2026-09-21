@@ -105,3 +105,27 @@ export const videos = pgTable("videos", {
     .notNull()
     .default(sql`now() + interval '7 days'`),
 });
+
+export const platform = pgEnum("platform", ["tiktok", "reels", "both"]);
+export const verdict = pgEnum("verdict", ["ready", "fix_first", "not_ready"]);
+
+export const preflights = pgTable("preflights", {
+  id: id(),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  videoId: uuid("video_id")
+    .notNull()
+    .references(() => videos.id, { onDelete: "cascade" }),
+  platform: platform("platform").notNull(),
+  briefText: text("brief_text"),
+  captionText: text("caption_text"),
+  brandName: text("brand_name"),
+  status: jobStatus("status").notNull().default("queued"),
+  score: integer("score"),
+  verdict: verdict("verdict"),
+  report: jsonb("report"),
+  artifacts: jsonb("artifacts"),
+  promptVersion: text("prompt_version"),
+  createdAt: createdAt(),
+});
