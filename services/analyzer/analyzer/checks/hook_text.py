@@ -41,4 +41,4 @@ def check(ctx: AnalysisContext) -> CheckResult:
     )
 
 
-SPEC = CheckSpec("hook.text", "hook", check, needs=("frames",))
+SPEC = CheckSpec("hook.text", "hook", check, needs=("ocr",))
