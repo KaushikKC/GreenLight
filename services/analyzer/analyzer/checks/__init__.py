@@ -71,7 +71,7 @@ def run_checks(ctx: AnalysisContext, specs: list[CheckSpec] = DETERMINISTIC) -> 
             continue
         try:
             result = spec.fn(ctx)
-        except Exception:  # noqa: BLE001 - one broken check must not block the report
+        except Exception:  # one broken check must not block the report
             log.exception("check %s crashed", spec.id)
             result = couldnt_check(spec, "Something went wrong running this check.")
         results.append(result.model_copy(update={"estimate": result.estimate or spec.estimate}))
