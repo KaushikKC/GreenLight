@@ -56,10 +56,20 @@ def parse_ffprobe(data: dict) -> Probe:
 
 def probe(path: Path) -> Probe:
     proc = subprocess.run(
-        ["ffprobe", "-v", "error", "-print_format", "json", "-show_streams", "-show_format", str(path)],
+        [
+            "ffprobe",
+            "-v",
+            "error",
+            "-print_format",
+            "json",
+            "-show_streams",
+            "-show_format",
+            str(path),
+        ],
         capture_output=True,
         text=True,
         timeout=60,
+        check=False,
     )
     if proc.returncode != 0:
         raise ProbeError(f"ffprobe couldn't read this file: {proc.stderr.strip()[:300]}")

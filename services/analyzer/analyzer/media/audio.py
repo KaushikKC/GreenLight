@@ -23,8 +23,22 @@ VOICE_BAND_HZ = (300.0, 3400.0)
 
 def extract_wav(video: Path, out: Path) -> Path:
     subprocess.run(
-        ["ffmpeg", "-v", "error", "-y", "-i", str(video), "-vn", "-ac", "1",
-         "-ar", str(SAMPLE_RATE), "-sample_fmt", "s16", str(out)],
+        [
+            "ffmpeg",
+            "-v",
+            "error",
+            "-y",
+            "-i",
+            str(video),
+            "-vn",
+            "-ac",
+            "1",
+            "-ar",
+            str(SAMPLE_RATE),
+            "-sample_fmt",
+            "s16",
+            str(out),
+        ],
         check=True,
         capture_output=True,
         timeout=120,
@@ -33,7 +47,7 @@ def extract_wav(video: Path, out: Path) -> Path:
 
 
 _I_RE = re.compile(r"I:\s+(-?[\d.]+|-inf)\s+LUFS")
-_PEAK_RE = re.compile(r"True peak:\s+Peak:\s+(-?[\d.]+|-inf)\s+dBFS", re.S)
+_PEAK_RE = re.compile(r"True peak:\s+Peak:\s+(-?[\d.]+|-inf)\s+dBFS", re.DOTALL)
 
 
 def _num(s: str) -> float | None:
@@ -42,7 +56,7 @@ def _num(s: str) -> float | None:
 
 def parse_ebur128(stderr: str) -> tuple[float | None, float | None]:
     """(integrated LUFS, true peak dBTP) from ffmpeg's ebur128 summary."""
-    summary = stderr[stderr.rfind("Summary:"):] if "Summary:" in stderr else stderr
+    summary = stderr[stderr.rfind("Summary:") :] if "Summary:" in stderr else stderr
     i = _I_RE.findall(summary)
     p = _PEAK_RE.findall(summary)
     return (_num(i[-1]) if i else None, _num(p[-1]) if p else None)
@@ -50,11 +64,22 @@ def parse_ebur128(stderr: str) -> tuple[float | None, float | None]:
 
 def loudness(wav: Path) -> tuple[float | None, float | None]:
     proc = subprocess.run(
-        ["ffmpeg", "-nostats", "-hide_banner", "-i", str(wav),
-         "-af", "ebur128=peak=true", "-f", "null", "-"],
+        [
+            "ffmpeg",
+            "-nostats",
+            "-hide_banner",
+            "-i",
+            str(wav),
+            "-af",
+            "ebur128=peak=true",
+            "-f",
+            "null",
+            "-",
+        ],
         capture_output=True,
         text=True,
         timeout=120,
+        check=False,
     )
     return parse_ebur128(proc.stderr)
 
@@ -73,12 +98,17 @@ def speech_flags(pcm: np.ndarray) -> np.ndarray:
     vad = webrtcvad.Vad(VAD_AGGRESSIVENESS)
     n = len(pcm) // FRAME_LEN
     return np.array(
-        [vad.is_speech(pcm[i * FRAME_LEN:(i + 1) * FRAME_LEN].tobytes(), SAMPLE_RATE) for i in range(n)],
+        [
+            vad.is_speech(pcm[i * FRAME_LEN : (i + 1) * FRAME_LEN].tobytes(), SAMPLE_RATE)
+            for i in range(n)
+        ],
         dtype=bool,
     )
 
 
-def flags_to_segments(flags: np.ndarray, frame_s: float = FRAME_MS / 1000) -> list[tuple[float, float]]:
+def flags_to_segments(
+    flags: np.ndarray, frame_s: float = FRAME_MS / 1000
+) -> list[tuple[float, float]]:
     """Speech flags → merged (start, end) segments, dropping blips."""
     segments: list[list[float]] = []
     for i, is_speech in enumerate(flags):
