@@ -81,3 +81,27 @@ export const llmCalls = pgTable("llm_calls", {
   latencyMs: integer("latency_ms"),
   createdAt: createdAt(),
 });
+
+// ---------------------------------------------------------------------------
+// Preflight
+// ---------------------------------------------------------------------------
+
+export const videos = pgTable("videos", {
+  id: id(),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  storageKey: text("storage_key").notNull(),
+  filename: text("filename").notNull(),
+  sizeBytes: integer("size_bytes").notNull(),
+  durationS: real("duration_s"),
+  width: integer("width"),
+  height: integer("height"),
+  fps: real("fps"),
+  hasAudio: boolean("has_audio"),
+  createdAt: createdAt(),
+  /** Videos auto-delete after 7 days. */
+  deleteAfter: timestamp("delete_after", { withTimezone: true })
+    .notNull()
+    .default(sql`now() + interval '7 days'`),
+});
