@@ -20,7 +20,9 @@ log = logging.getLogger("analyzer.worker")
 STALE_CHECK_EVERY_S = 60
 
 
-def run_one(conn: psycopg.Connection, handlers: dict[str, Handler], max_attempts: int) -> Job | None:
+def run_one(
+    conn: psycopg.Connection, handlers: dict[str, Handler], max_attempts: int
+) -> Job | None:
     """Claim and run a single job. Returns the job, or None if the queue was empty."""
     job = queue.claim(conn)
     if job is None:
@@ -28,8 +30,13 @@ def run_one(conn: psycopg.Connection, handlers: dict[str, Handler], max_attempts
 
     handler = handlers.get(job.type)
     if handler is None:
-        queue.fail(conn, job, f"no handler for job type {job.type!r}",
-                   max_attempts=max_attempts, permanent=True)
+        queue.fail(
+            conn,
+            job,
+            f"no handler for job type {job.type!r}",
+            max_attempts=max_attempts,
+            permanent=True,
+        )
         log.error("job %s: no handler for type %s", job.id, job.type)
         return job
 
@@ -52,7 +59,9 @@ def run_one(conn: psycopg.Connection, handlers: dict[str, Handler], max_attempts
 
 
 def main() -> None:
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
+    logging.basicConfig(
+        level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s"
+    )
     settings = get_settings()
 
     stopping = False
@@ -73,8 +82,11 @@ def main() -> None:
                 while not stopping:
                     now = time.monotonic()
                     if now - last_stale_check > STALE_CHECK_EVERY_S:
-                        n = queue.requeue_stale(conn, settings.worker_stale_lock_s,
-                                                max_attempts=settings.worker_max_attempts)
+                        n = queue.requeue_stale(
+                            conn,
+                            settings.worker_stale_lock_s,
+                            max_attempts=settings.worker_max_attempts,
+                        )
                         if n:
                             log.warning("recovered %d stale job(s)", n)
                         last_stale_check = now
