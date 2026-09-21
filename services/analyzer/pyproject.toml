@@ -3,7 +3,13 @@ name = "analyzer"
 version = "0.1.0"
 description = "Greenlight analysis worker: preflight, contract extraction, brand mentions."
 requires-python = ">=3.11"
-dependencies = []
+dependencies = [
+    "fastapi>=0.115",
+    "psycopg[binary]>=3.2",
+    "pydantic>=2.9",
+    "pydantic-settings>=2.6",
+    "uvicorn>=0.32",
+]
 
 [build-system]
 requires = ["hatchling"]
@@ -19,3 +25,9 @@ markers = ["db: needs a running Postgres (DATABASE_URL)"]
 [tool.ruff]
 line-length = 100
 target-version = "py311"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+    "ruff>=0.16.8",
+]
