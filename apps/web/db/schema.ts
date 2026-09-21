@@ -219,3 +219,30 @@ export const posts = pgTable("posts", {
   ocrText: text("ocr_text"),
   source: postSource("source").notNull(),
 });
+
+export const mentionModality = pgEnum("mention_modality", [
+  "spoken",
+  "caption",
+  "on_screen",
+  "visual",
+]);
+
+export const brandMentions = pgTable(
+  "brand_mentions",
+  {
+    id: id(),
+    postId: uuid("post_id")
+      .notNull()
+      .references(() => posts.id, { onDelete: "cascade" }),
+    brandCanonical: text("brand_canonical").notNull(),
+    brandRaw: text("brand_raw").notNull(),
+    product: text("product"),
+    modality: mentionModality("modality").notNull(),
+    /** -1..1 */
+    sentiment: real("sentiment").notNull().default(0),
+    isSponsored: boolean("is_sponsored").notNull().default(false),
+    evidence: text("evidence"),
+    confidence: real("confidence"),
+  },
+  (t) => [index("brand_mentions_canonical_idx").on(t.brandCanonical)],
+);
