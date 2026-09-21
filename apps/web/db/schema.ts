@@ -69,3 +69,15 @@ export const jobs = pgTable(
       .where(sql`${t.status} = 'queued'`),
   ],
 );
+
+export const llmCalls = pgTable("llm_calls", {
+  id: id(),
+  jobId: uuid("job_id").references(() => jobs.id, { onDelete: "set null" }),
+  model: text("model").notNull(),
+  purpose: text("purpose").notNull(),
+  inputTokens: integer("input_tokens").notNull().default(0),
+  outputTokens: integer("output_tokens").notNull().default(0),
+  costUsd: numeric("cost_usd", { precision: 10, scale: 6 }),
+  latencyMs: integer("latency_ms"),
+  createdAt: createdAt(),
+});
