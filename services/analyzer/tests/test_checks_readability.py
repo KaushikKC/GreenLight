@@ -38,6 +38,10 @@ class TestSafeZone:
         assert read_safe_zone.check(ctx(frames=frames)).status == "pass"
         assert read_safe_zone.check(ctx(platform="both", frames=frames)).status == "fail"
 
+    def test_points_at_earliest_equally_bad_moment(self):
+        frames = [frame(5.0, text("Now!", BOTTOM)), frame(1.0, text("Buy", BOTTOM))]
+        assert read_safe_zone.check(ctx(frames=frames)).timestamp_s == 1.0
+
     def test_reports_every_timestamp(self):
         frames = [frame(1.0, text("Buy", BOTTOM)), frame(5.0, text("Now!", BOTTOM))]
         assert read_safe_zone.check(ctx(frames=frames)).evidence["all_timestamps"] == [1.0, 5.0]
