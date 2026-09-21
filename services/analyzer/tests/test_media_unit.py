@@ -14,7 +14,13 @@ from analyzer.media.probe import ProbeError, parse_ffprobe
 
 
 def ffprobe_json(w=1080, h=1920, rotation=None, audio=True, rate="30000/1001", duration="12.5"):
-    video = {"codec_type": "video", "codec_name": "h264", "width": w, "height": h, "avg_frame_rate": rate}
+    video = {
+        "codec_type": "video",
+        "codec_name": "h264",
+        "width": w,
+        "height": h,
+        "avg_frame_rate": rate,
+    }
     if rotation is not None:
         video["side_data_list"] = [{"rotation": rotation}]
     streams = [video] + ([{"codec_type": "audio"}] if audio else [])
