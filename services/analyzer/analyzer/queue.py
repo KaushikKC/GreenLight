@@ -66,13 +66,23 @@ def fail(
     return status
 
 
-def requeue_stale(conn: psycopg.Connection, stale_after_s: int) -> int:
-    """Put back jobs whose worker died mid-run. Returns how many were re-queued."""
+def requeue_stale(conn: psycopg.Connection, stale_after_s: int, *, max_attempts: int) -> int:
+    """Recover jobs whose worker died mid-run. Returns how many rows were touched.
+
+    Jobs still under the attempt limit go back to the queue; the rest are marked
+    `error` so a job that crashes the worker can't loop forever.
+    """
     with conn.transaction():
         cur = conn.execute(
-            """UPDATE jobs SET status = 'queued', locked_at = NULL, updated_at = now()
+            """UPDATE jobs
+                  SET status = CASE WHEN attempts >= %s THEN 'error'::job_status
+                                    ELSE 'queued'::job_status END,
+                      error = CASE WHEN attempts >= %s THEN 'worker died while running job'
+                                   ELSE error END,
+                      locked_at = NULL,
+                      updated_at = now()
                 WHERE status = 'running'
                   AND locked_at < now() - make_interval(secs => %s)""",
-            (stale_after_s,),
+            (max_attempts, max_attempts, stale_after_s),
         )
     return cur.rowcount
