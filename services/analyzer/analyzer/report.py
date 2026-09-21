@@ -22,7 +22,13 @@ def fix_list(checks: list[CheckResult]) -> list[dict[str, Any]]:
         )
     )
     return [
-        {"n": i + 1, "check_id": c.id, "fix": c.fix, "timestamp_s": c.timestamp_s, "status": c.status}
+        {
+            "n": i + 1,
+            "check_id": c.id,
+            "fix": c.fix,
+            "timestamp_s": c.timestamp_s,
+            "status": c.status,
+        }
         for i, c in enumerate(actionable)
     ]
 
