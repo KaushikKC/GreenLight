@@ -71,11 +71,14 @@ def _load(conn: psycopg.Connection, preflight_id) -> dict[str, Any]:
     return row
 
 
-def _set_status(conn: psycopg.Connection, preflight_id, status: str, error: str | None = None) -> None:
+def _set_status(
+    conn: psycopg.Connection, preflight_id, status: str, error: str | None = None
+) -> None:
     with conn.transaction():
         if error is None:
             conn.execute(
-                "UPDATE preflights SET status = %s::job_status WHERE id = %s", (status, preflight_id)
+                "UPDATE preflights SET status = %s::job_status WHERE id = %s",
+                (status, preflight_id),
             )
         else:
             conn.execute(
@@ -92,16 +95,20 @@ def _sample_frames(
 ) -> tuple[list[Frame], list[float] | None, list[np.ndarray]]:
     try:
         cuts: list[float] | None = frames_mod.detect_scene_cuts(video)
-    except Exception:  # noqa: BLE001
+    except Exception:
         log.exception("scene detection failed")
         cuts = None
 
     frames: list[Frame] = []
     ocr_images: list[np.ndarray] = []
-    for t, img in frames_mod.read_frames(video, frames_mod.sample_timestamps(duration_s, cuts or [])):
+    for t, img in frames_mod.read_frames(
+        video, frames_mod.sample_timestamps(duration_s, cuts or [])
+    ):
         thumb = frames_mod.resize_long_edge(img, frames_mod.THUMB_LONG_EDGE)
         key = storage.upload_bytes(
-            f"preflights/{preflight_id}/frames/{t:07.2f}.jpg", frames_mod.encode_jpeg(thumb), "image/jpeg"
+            f"preflights/{preflight_id}/frames/{t:07.2f}.jpg",
+            frames_mod.encode_jpeg(thumb),
+            "image/jpeg",
         )
         frames.append(Frame(t=t, key=key, blur=blur_score(thumb), luma=mean_luma(thumb)))
         ocr_images.append(frames_mod.resize_long_edge(img, frames_mod.OCR_LONG_EDGE))
@@ -137,7 +144,14 @@ def _run(job: Job, conn: psycopg.Connection) -> None:
             conn.execute(
                 """UPDATE videos SET duration_s = %s, width = %s, height = %s, fps = %s, has_audio = %s
                     WHERE id = %s""",
-                (meta.duration_s, meta.width, meta.height, meta.fps, meta.has_audio, row["video_id"]),
+                (
+                    meta.duration_s,
+                    meta.width,
+                    meta.height,
+                    meta.fps,
+                    meta.has_audio,
+                    row["video_id"],
+                ),
             )
         progress.set("probe", "done")
 
@@ -149,7 +163,7 @@ def _run(job: Job, conn: psycopg.Connection) -> None:
         try:
             ctx.frames, ctx.scene_cuts, ocr_images = _sample_frames(video, meta.duration_s, pid)
             progress.set("frames", "done")
-        except Exception:  # noqa: BLE001
+        except Exception:
             log.exception("frames step failed")
             progress.set("frames", "error")
 
@@ -158,7 +172,7 @@ def _run(job: Job, conn: psycopg.Connection) -> None:
         try:
             ctx.audio = audio_mod.analyze(video, workdir) if meta.has_audio else AudioStats()
             progress.set("audio", "done")
-        except Exception:  # noqa: BLE001
+        except Exception:
             log.exception("audio step failed")
             progress.set("audio", "error")
 
@@ -168,7 +182,7 @@ def _run(job: Job, conn: psycopg.Connection) -> None:
             try:
                 frame.ocr = read_text(img)
                 frame.ocr_ok = True
-            except Exception:  # noqa: BLE001
+            except Exception:
                 log.exception("ocr failed at t=%s", frame.t)
         ocr_ok = bool(ctx.frames) and any(f.ocr_ok for f in ctx.frames)
         progress.set("ocr", "done" if ocr_ok else "error")
@@ -205,11 +219,11 @@ def run(job: Job, conn: psycopg.Connection) -> None:
     except PermanentJobError as e:
         _set_status(conn, job.ref_id, "error", str(e))
         raise
-    except Exception as e:
+    except Exception:
         if conn.info.transaction_status != psycopg.pq.TransactionStatus.IDLE:
             conn.rollback()
         if job.attempts >= get_settings().worker_max_attempts:
             _set_status(conn, job.ref_id, "error", "Analysis failed. Please try uploading again.")
         else:
             _set_status(conn, job.ref_id, "queued")
-        raise e
+        raise
