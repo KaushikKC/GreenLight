@@ -121,3 +121,14 @@ def test_voice_band_ratio_low_for_bass_and_highs():
 
 def test_voice_band_ratio_empty():
     assert voice_band_ratio(np.zeros((0, FRAME_LEN), dtype=np.int16)) is None
+
+
+def test_unreadable_file_gives_plain_message(tmp_path):
+    from analyzer.media.probe import probe
+
+    bad = tmp_path / "bad.mp4"
+    bad.write_text("not a video")
+    with pytest.raises(ProbeError) as exc:
+        probe(bad)
+    assert str(tmp_path) not in str(exc.value)
+    assert "MP4 or MOV" in str(exc.value)
