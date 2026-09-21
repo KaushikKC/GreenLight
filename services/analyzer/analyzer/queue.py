@@ -57,7 +57,7 @@ def fail(
     status = "queued" if retry else "error"
     with conn.transaction():
         conn.execute(
-            """UPDATE jobs SET status = %s, locked_at = NULL, error = %s,
+            """UPDATE jobs SET status = %s::job_status, locked_at = NULL, error = %s,
                    run_after = now() + make_interval(secs => %s),
                    updated_at = now()
                 WHERE id = %s""",
