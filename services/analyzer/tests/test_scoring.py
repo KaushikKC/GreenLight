@@ -3,7 +3,9 @@ from analyzer.scoring import score_checks, verdict_for
 
 
 def c(id_: str, group: str, status: str) -> CheckResult:
-    return CheckResult(id=id_, group=group, status=status, severity="info", title="t", explanation="e")
+    return CheckResult(
+        id=id_, group=group, status=status, severity="info", title="t", explanation="e"
+    )
 
 
 def test_all_pass_is_100_ready():
@@ -40,7 +42,10 @@ def test_na_info_error_are_excluded():
 
 
 def test_disclosure_fail_caps_at_49():
-    r = score_checks([c("comp.disclosure", "compliance", "fail")] + [c(f"h{i}", "hook", "pass") for i in range(5)])
+    r = score_checks(
+        [c("comp.disclosure", "compliance", "fail")]
+        + [c(f"h{i}", "hook", "pass") for i in range(5)]
+    )
     assert r.raw_score > 49
     assert r.score == 49
     assert r.verdict == "not_ready"
