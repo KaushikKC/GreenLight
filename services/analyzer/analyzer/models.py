@@ -30,6 +30,7 @@ class Frame(BaseModel):
     t: float
     key: str | None = None  # storage key of the uploaded JPEG
     blur: float | None = None  # Laplacian variance, higher = sharper
+    detail: float | None = None  # luma std-dev; low = flat graphic
     luma: float | None = None  # mean luma 0..255
     ocr: list[OcrBox] = Field(default_factory=list)
     ocr_ok: bool = False
