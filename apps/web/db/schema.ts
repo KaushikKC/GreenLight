@@ -246,3 +246,15 @@ export const brandMentions = pgTable(
   },
   (t) => [index("brand_mentions_canonical_idx").on(t.brandCanonical)],
 );
+
+export const pitches = pgTable("pitches", {
+  id: id(),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  brandCanonical: text("brand_canonical").notNull(),
+  subject: text("subject").notNull(),
+  body: text("body").notNull(),
+  evidencePostIds: uuid("evidence_post_ids").array().notNull().default(sql`'{}'`),
+  createdAt: createdAt(),
+});
