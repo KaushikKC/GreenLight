@@ -153,3 +153,23 @@ export const contracts = pgTable("contracts", {
   status: contractStatus("status").notNull().default("extracting"),
   createdAt: createdAt(),
 });
+
+export const deals = pgTable("deals", {
+  id: id(),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  contractId: uuid("contract_id").references(() => contracts.id, {
+    onDelete: "set null",
+  }),
+  brand: text("brand").notNull(),
+  campaign: text("campaign"),
+  signedAt: timestamp("signed_at", { withTimezone: true }),
+  feeAmount: numeric("fee_amount", { precision: 12, scale: 2 }),
+  feeCurrency: text("fee_currency"),
+  paymentTermsDays: integer("payment_terms_days"),
+  paymentDueAt: timestamp("payment_due_at", { withTimezone: true }),
+  paid: boolean("paid").notNull().default(false),
+  deliverables: jsonb("deliverables"),
+  notes: text("notes"),
+});
