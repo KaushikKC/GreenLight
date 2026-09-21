@@ -71,7 +71,12 @@ def score_checks(checks: list[CheckResult]) -> ScoreResult:
     total_weight = sum(g.weight for g in groups)
     if total_weight == 0:
         return ScoreResult(
-            score=0, verdict="not_ready", groups=[], uncounted_groups=uncounted, caps=[], raw_score=0
+            score=0,
+            verdict="not_ready",
+            groups=[],
+            uncounted_groups=uncounted,
+            caps=[],
+            raw_score=0,
         )
     for g in groups:
         g.effective_weight = round(g.weight * 100 / total_weight, 2)
