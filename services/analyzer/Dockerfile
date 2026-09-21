@@ -14,6 +14,7 @@ COPY pyproject.toml uv.lock ./
 RUN uv sync --frozen --no-dev --no-install-project
 
 COPY analyzer ./analyzer
+COPY rules ./rules
 RUN uv sync --frozen --no-dev
 
 CMD ["uv", "run", "--no-sync", "python", "-m", "analyzer.worker"]
