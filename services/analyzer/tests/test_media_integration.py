@@ -23,7 +23,9 @@ W, H, FPS, SECONDS = 540, 960, 30, 6
 
 def _draw(bg, label, y_frac):
     img = np.full((H, W, 3), bg, np.uint8)
-    cv2.putText(img, label, (40, int(H * y_frac)), cv2.FONT_HERSHEY_SIMPLEX, 1.6, (255, 255, 255), 4)
+    cv2.putText(
+        img, label, (40, int(H * y_frac)), cv2.FONT_HERSHEY_SIMPLEX, 1.6, (255, 255, 255), 4
+    )
     return img
 
 
@@ -40,9 +42,26 @@ def clip(tmp_path_factory) -> Path:
     writer.release()
     out = d / "clip.mp4"
     subprocess.run(
-        ["ffmpeg", "-v", "error", "-y", "-i", str(silent),
-         "-f", "lavfi", "-i", f"sine=frequency=440:duration={SECONDS}",
-         "-c:v", "libx264", "-pix_fmt", "yuv420p", "-c:a", "aac", "-shortest", str(out)],
+        [
+            "ffmpeg",
+            "-v",
+            "error",
+            "-y",
+            "-i",
+            str(silent),
+            "-f",
+            "lavfi",
+            "-i",
+            f"sine=frequency=440:duration={SECONDS}",
+            "-c:v",
+            "libx264",
+            "-pix_fmt",
+            "yuv420p",
+            "-c:a",
+            "aac",
+            "-shortest",
+            str(out),
+        ],
         check=True,
     )
     return out
