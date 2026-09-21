@@ -110,9 +110,9 @@ def _sample_frames(
             frames_mod.encode_jpeg(thumb),
             "image/jpeg",
         )
-        frames.append(Frame(
-                t=t, key=key, blur=blur_score(thumb), detail=detail(thumb), luma=mean_luma(thumb)
-            ))
+        frames.append(
+            Frame(t=t, key=key, blur=blur_score(thumb), detail=detail(thumb), luma=mean_luma(thumb))
+        )
         ocr_images.append(frames_mod.resize_long_edge(img, frames_mod.OCR_LONG_EDGE))
     if not frames:
         raise RuntimeError("no frames could be decoded")
