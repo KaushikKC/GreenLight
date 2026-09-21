@@ -17,6 +17,17 @@ class TestBlur:
         frames = [frame(t, blur=500) for t in range(9)] + [frame(9, blur=10)]
         assert tech_blur.check(ctx(frames=frames)).status == "pass"
 
+    def test_flat_graphic_frames_are_skipped(self):
+        frames = [frame(0, blur=20), frame(1, blur=500)]
+        frames[0].detail = 5  # solid-colour slide
+        assert tech_blur.check(ctx(frames=frames)).status == "pass"
+
+    def test_all_flat_graphics_is_na(self):
+        frames = [frame(0, blur=20), frame(1, blur=30)]
+        for f in frames:
+            f.detail = 5
+        assert tech_blur.check(ctx(frames=frames)).status == "na"
+
     def test_no_measurements_is_error(self):
         frames = [frame(0, blur=None)]
         assert tech_blur.check(ctx(frames=frames)).status == "error"
