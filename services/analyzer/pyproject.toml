@@ -4,11 +4,17 @@ version = "0.1.0"
 description = "Greenlight analysis worker: preflight, contract extraction, brand mentions."
 requires-python = ">=3.11"
 dependencies = [
+    "boto3>=1.43.100",
     "fastapi>=0.115",
+    "numpy>=2.4.6",
+    "opencv-python-headless>=5.0.0.93",
     "psycopg[binary]>=3.2",
     "pydantic>=2.9",
     "pydantic-settings>=2.6",
+    "rapidocr-onnxruntime>=1.4.4",
+    "scenedetect>=0.6.4",
     "uvicorn>=0.32",
+    "webrtcvad-wheels>=2.0.14",
 ]
 
 [build-system]
@@ -31,3 +37,8 @@ dev = [
     "pytest>=9.1.1",
     "ruff>=0.16.8",
 ]
+
+[tool.uv]
+# rapidocr depends on the GUI build of OpenCV; both builds install the same
+# `cv2` module and clobber each other. Keep only the headless one.
+override-dependencies = ["opencv-python; sys_platform == 'never'"]
