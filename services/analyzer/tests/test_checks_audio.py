@@ -2,7 +2,7 @@ from analyzer.checks import audio_loudness, audio_music, audio_voice_clarity
 from analyzer.models import AudioStats
 from tests.factories import ctx, probe
 
-NO_AUDIO = dict(probe=probe(has_audio=False), audio=AudioStats())
+NO_AUDIO = {"probe": probe(has_audio=False), "audio": AudioStats()}
 
 
 class TestLoudness:

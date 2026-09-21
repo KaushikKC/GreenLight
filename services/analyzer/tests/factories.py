@@ -5,7 +5,7 @@ from analyzer.rules import load_rules
 
 
 def probe(**kw) -> Probe:
-    base = dict(duration_s=30.0, width=1080, height=1920, fps=30.0, has_audio=True)
+    base = {"duration_s": 30.0, "width": 1080, "height": 1920, "fps": 30.0, "has_audio": True}
     return Probe(**{**base, **kw})
 
 
@@ -18,11 +18,11 @@ def frame(t: float, *boxes: OcrBox, blur=500.0, luma=120.0) -> Frame:
 
 
 def ctx(platform="tiktok", **kw) -> AnalysisContext:
-    base = dict(
-        rules=load_rules(platform),
-        probe=probe(),
-        frames=[frame(t) for t in (0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0)],
-        scene_cuts=[],
-        audio=AudioStats(integrated_lufs=-14, true_peak_dbtp=-2, speech_ratio=0.6),
-    )
+    base = {
+        "rules": load_rules(platform),
+        "probe": probe(),
+        "frames": [frame(t) for t in (0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0)],
+        "scene_cuts": [],
+        "audio": AudioStats(integrated_lufs=-14, true_peak_dbtp=-2, speech_ratio=0.6),
+    }
     return AnalysisContext(**{**base, **kw})
