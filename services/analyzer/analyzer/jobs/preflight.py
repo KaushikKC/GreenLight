@@ -21,7 +21,7 @@ from analyzer.media import audio as audio_mod
 from analyzer.media import frames as frames_mod
 from analyzer.media.ocr import read_text
 from analyzer.media.probe import ProbeError, probe
-from analyzer.media.quality import blur_score, mean_luma
+from analyzer.media.quality import blur_score, detail, mean_luma
 from analyzer.models import AnalysisContext, AudioStats, Frame
 from analyzer.report import REPORT_VERSION, build_report
 from analyzer.rules import load_rules
@@ -110,7 +110,9 @@ def _sample_frames(
             frames_mod.encode_jpeg(thumb),
             "image/jpeg",
         )
-        frames.append(Frame(t=t, key=key, blur=blur_score(thumb), luma=mean_luma(thumb)))
+        frames.append(Frame(
+                t=t, key=key, blur=blur_score(thumb), detail=detail(thumb), luma=mean_luma(thumb)
+            ))
         ocr_images.append(frames_mod.resize_long_edge(img, frames_mod.OCR_LONG_EDGE))
     if not frames:
         raise RuntimeError("no frames could be decoded")
