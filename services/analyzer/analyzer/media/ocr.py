@@ -13,7 +13,9 @@ def _engine() -> RapidOCR:
     return RapidOCR()
 
 
-def quad_to_box(quad: list[list[float]], width: int, height: int) -> tuple[float, float, float, float]:
+def quad_to_box(
+    quad: list[list[float]], width: int, height: int
+) -> tuple[float, float, float, float]:
     """Axis-aligned [x, y, w, h] (fractions of the frame) around an OCR quadrilateral."""
     xs = [p[0] for p in quad]
     ys = [p[1] for p in quad]
