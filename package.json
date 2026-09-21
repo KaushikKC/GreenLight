@@ -1,0 +1,13 @@
+{
+  "name": "greenlight",
+  "private": true,
+  "packageManager": "pnpm@9.15.0",
+  "engines": {
+    "node": ">=20.9"
+  },
+  "scripts": {
+    "dev": "pnpm --filter web dev",
+    "test": "pnpm --filter web test",
+    "lint": "pnpm --filter web lint"
+  }
+}
