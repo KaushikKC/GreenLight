@@ -7,6 +7,7 @@
       "true_peak_max_dbtp",
       "text_min_height_frac",
       "blur_laplacian_min",
+      "blur_min_detail_std",
       "lighting_min_luma",
       "music_warn_ratio",
       "voice_band_ratio_min"
@@ -34,6 +35,7 @@
     "voice_band_ratio_min": 0.6,
 
     "blur_laplacian_min": 100,
+    "blur_min_detail_std": 12,
     "blur_warn_frame_frac": 0.3,
     "lighting_min_luma": 60,
     "lighting_warn_frame_frac": 0.3
