@@ -74,11 +74,10 @@ def test_unknown_type_errors_without_retry(jobdb):
 def test_skip_locked_gives_each_worker_a_different_job(jobdb):
     a = jobdb.insert(run_after=EARLY)
     b = jobdb.insert(run_after=EARLY + timedelta(seconds=1))
-    with connect() as other:
-        # Hold worker 1's row lock open while worker 2 claims.
-        with jobdb.conn.transaction():
-            first = jobdb.conn.execute(queue.CLAIM_SQL).fetchone()
-            second = queue.claim(other)
+    # Hold worker 1's row lock open while worker 2 claims.
+    with connect() as other, jobdb.conn.transaction():
+        first = jobdb.conn.execute(queue.CLAIM_SQL).fetchone()
+        second = queue.claim(other)
     assert {first["id"], second.id} == {a, b}
 
 
