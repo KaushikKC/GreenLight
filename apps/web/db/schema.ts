@@ -194,3 +194,28 @@ export const rightsWindows = pgTable("rights_windows", {
   perpetual: boolean("perpetual").notNull().default(false),
   sourceQuote: text("source_quote"),
 });
+
+// ---------------------------------------------------------------------------
+// Brands You Already Love
+// ---------------------------------------------------------------------------
+
+export const postSource = pgEnum("post_source", [
+  "manual",
+  "csv",
+  "export",
+  "upload",
+]);
+
+export const posts = pgTable("posts", {
+  id: id(),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  platform: text("platform"),
+  url: text("url"),
+  postedAt: timestamp("posted_at", { withTimezone: true }),
+  caption: text("caption"),
+  transcript: text("transcript"),
+  ocrText: text("ocr_text"),
+  source: postSource("source").notNull(),
+});
