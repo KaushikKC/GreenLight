@@ -8,9 +8,11 @@ def check(ctx: AnalysisContext) -> CheckResult:
     window = ctx.rules.hook_window_s
     cuts = [t for t in ctx.scene_cuts or [] if t <= window]
     if cuts:
-        explanation = f"{len(cuts)} cut(s) in the first {window:.0f}s, at " + ", ".join(
-            fmt_t(t) for t in cuts
-        ) + "."
+        explanation = (
+            f"{len(cuts)} cut(s) in the first {window:.0f}s, at "
+            + ", ".join(fmt_t(t) for t in cuts)
+            + "."
+        )
         fix = None
     else:
         explanation = f"No cuts in the first {window:.0f}s. A static opening can work if the first line is strong."
