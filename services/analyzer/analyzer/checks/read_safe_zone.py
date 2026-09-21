@@ -37,7 +37,8 @@ def check(ctx: AnalysisContext) -> CheckResult:
             evidence={"regions": [r.model_dump() for r in rules.unsafe_regions]},
         )
 
-    frame, box, region, overlap = max(hits, key=lambda h: (h[3], h[1].box[3]))
+    # Worst overlap wins; ties go to the earliest moment so the report seeks there.
+    frame, box, region, overlap = min(hits, key=lambda h: (-round(h[3], 1), h[0].t))
     where = REGION_NAMES.get(region.name, region.name.replace("_", " "))
     platform = PLATFORM_NAMES.get(region.platform, region.platform)
     distinct_times = sorted({h[0].t for h in hits})
