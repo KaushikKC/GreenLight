@@ -16,6 +16,18 @@ def check(ctx: AnalysisContext) -> CheckResult:
             title="Couldn't check sharpness",
             explanation="No frames could be measured.",
         )
+    # Flat graphics (solid-colour slides, fades) always look "soft" to a
+    # Laplacian; only judge frames with real detail.
+    measured = [f for f in measured if f.detail is None or f.detail >= rules.blur_min_detail_std]
+    if not measured:
+        return CheckResult(
+            id="tech.blur",
+            group="technical",
+            status="na",
+            severity="info",
+            title="Mostly graphics",
+            explanation="Your frames are mostly flat graphics, so there's no camera footage to judge for focus.",
+        )
     blurry = [f for f in measured if f.blur < rules.blur_laplacian_min]
     share = len(blurry) / len(measured)
     evidence = {
