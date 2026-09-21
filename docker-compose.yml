@@ -44,6 +44,21 @@ services:
       echo 'bucket ready'
       "
 
+  # Containerised worker. `make dev` runs the worker locally instead (faster
+  # reloads), so this only starts with `docker compose --profile full up`.
+  analyzer:
+    build: ./services/analyzer
+    profiles: ["full"]
+    env_file: .env
+    environment:
+      DATABASE_URL: postgres://greenlight:greenlight@postgres:5432/greenlight
+      S3_ENDPOINT: http://minio:9000
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio-init:
+        condition: service_completed_successfully
+
 volumes:
   pgdata:
   miniodata:
