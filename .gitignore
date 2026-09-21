@@ -1,0 +1,28 @@
+# deps
+node_modules/
+.pnpm-store/
+.venv/
+__pycache__/
+*.pyc
+
+# build
+.next/
+out/
+dist/
+*.tsbuildinfo
+
+# env
+.env
+.env.local
+.env.*.local
+
+# tooling
+.DS_Store
+.pytest_cache/
+.ruff_cache/
+coverage/
+playwright-report/
+test-results/
+
+# eval outputs
+services/analyzer/evals/results/*.json
