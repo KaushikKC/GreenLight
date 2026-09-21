@@ -1,4 +1,7 @@
+import Link from "next/link";
+
 import { JobRunner } from "@/components/dev/job-runner";
+import { Button } from "@/components/ui/button";
 
 export default function Home() {
   return (
@@ -9,6 +12,10 @@ export default function Home() {
           The pre-flight check for creator ads.
         </p>
       </header>
+
+      <Button asChild size="lg" className="h-12">
+        <Link href="/preflight/new">Check a draft video</Link>
+      </Button>
 
       <section className="flex flex-col gap-3">
         <h2 className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
