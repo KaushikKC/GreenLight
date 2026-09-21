@@ -28,7 +28,11 @@ def check(ctx: AnalysisContext) -> CheckResult:
         explanation=(
             f"Your video is {p.width}×{p.height}. Ads look soft on modern phones below "
             f"{r.resolution_warn_short_side}px wide"
-            + (f", and under {r.resolution_fail_short_side}px they may be rejected." if status == "fail" else ".")
+            + (
+                f", and under {r.resolution_fail_short_side}px they may be rejected."
+                if status == "fail"
+                else "."
+            )
         ),
         fix="Export at 1080×1920. If you recorded in higher quality, check your editor's export settings.",
         evidence=evidence,
