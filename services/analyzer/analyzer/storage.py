@@ -28,5 +28,7 @@ def download(key: str, dest: Path) -> Path:
 
 
 def upload_bytes(key: str, data: bytes, content_type: str) -> str:
-    client().put_object(Bucket=get_settings().s3_bucket, Key=key, Body=data, ContentType=content_type)
+    client().put_object(
+        Bucket=get_settings().s3_bucket, Key=key, Body=data, ContentType=content_type
+    )
     return key
