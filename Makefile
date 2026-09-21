@@ -1,0 +1,53 @@
+# Greenlight dev commands. Requires: Docker, Node 24 (see .nvmrc), pnpm via corepack, uv.
+
+ANALYZER := services/analyzer
+SUITE ?= all
+
+.PHONY: dev infra infra-down migrate web worker test test-web test-analyzer eval install lint
+
+install:
+	pnpm install
+	cd $(ANALYZER) && uv sync
+
+## Start postgres + minio, apply migrations, then run web and worker together.
+dev: infra migrate
+	@trap 'kill 0' INT TERM EXIT; \
+	  $(MAKE) --no-print-directory worker & \
+	  $(MAKE) --no-print-directory web & \
+	  wait
+
+infra:
+	docker compose up -d --wait postgres minio
+	docker compose up minio-init
+
+infra-down:
+	docker compose down
+
+migrate:
+	pnpm --filter web db:migrate
+
+web:
+	pnpm --filter web dev
+
+worker:
+	cd $(ANALYZER) && uv run python -m analyzer.worker
+
+test: test-web test-analyzer
+
+test-web:
+	pnpm --filter web test
+
+test-analyzer:
+	cd $(ANALYZER) && uv run pytest -q
+
+lint:
+	pnpm --filter web lint
+	pnpm --filter web typecheck
+	cd $(ANALYZER) && uv run ruff check .
+
+eval:
+	@if [ -f $(ANALYZER)/evals/run.py ]; then \
+	  cd $(ANALYZER) && uv run python -m evals.run --suite $(SUITE); \
+	else \
+	  echo "No eval suites yet (Phase 6)."; \
+	fi
