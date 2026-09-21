@@ -4,6 +4,10 @@ from analyzer.checks.base import CheckSpec
 from analyzer.models import AnalysisContext, CheckResult
 
 
+def _sentence(text: str) -> str:
+    return text[:1].upper() + text[1:] + "."
+
+
 def check(ctx: AnalysisContext) -> CheckResult:
     if not ctx.probe.has_audio:
         return CheckResult(
@@ -50,7 +54,7 @@ def check(ctx: AnalysisContext) -> CheckResult:
         severity="medium",
         title="Volume needs adjusting",
         explanation="Your audio needs work: " + "; ".join(problems) + ".",
-        fix=("; ".join(fixes) + ".").capitalize(),
+        fix=_sentence("; ".join(fixes)),
         evidence=evidence,
     )
 
