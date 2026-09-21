@@ -44,7 +44,9 @@ def check(ctx: AnalysisContext) -> CheckResult:
             status="pass",
             severity="info",
             title="Volume is on target",
-            explanation=f"Loudness is {lufs:.1f} LUFS with no clipping." if lufs is not None else "No loudness problems found.",
+            explanation=f"Loudness is {lufs:.1f} LUFS with no clipping."
+            if lufs is not None
+            else "No loudness problems found.",
             evidence=evidence,
         )
     return CheckResult(
