@@ -27,8 +27,8 @@ class TestSafeZone:
         assert r.evidence["region"]["name"] == "right_action_rail"
 
     def test_tiny_edge_overlap_is_ignored(self):
-        # Only ~10% of the box dips into the bottom area.
-        box = (0.2, 0.75, 0.6, 0.05)
+        # Only 20% of the box dips into the bottom area (threshold is 30%).
+        box = (0.2, 0.74, 0.6, 0.05)
         assert read_safe_zone.check(ctx(frames=[frame(1.0, text("Almost", box))])).status == "pass"
 
     def test_both_platforms_use_stricter_union(self):
