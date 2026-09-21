@@ -129,3 +129,27 @@ export const preflights = pgTable("preflights", {
   promptVersion: text("prompt_version"),
   createdAt: createdAt(),
 });
+
+// ---------------------------------------------------------------------------
+// Rights Wallet
+// ---------------------------------------------------------------------------
+
+export const contractSource = pgEnum("contract_source", ["pdf", "docx", "text"]);
+export const contractStatus = pgEnum("contract_status", [
+  "extracting",
+  "needs_review",
+  "confirmed",
+]);
+
+export const contracts = pgTable("contracts", {
+  id: id(),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  storageKey: text("storage_key"),
+  source: contractSource("source").notNull(),
+  rawText: text("raw_text"),
+  extracted: jsonb("extracted"),
+  status: contractStatus("status").notNull().default("extracting"),
+  createdAt: createdAt(),
+});
