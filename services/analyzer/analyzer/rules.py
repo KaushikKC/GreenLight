@@ -49,6 +49,7 @@ class Rules(BaseModel):
     voice_band_ratio_min: float
 
     blur_laplacian_min: float
+    blur_min_detail_std: float
     blur_warn_frame_frac: float
     lighting_min_luma: float
     lighting_warn_frame_frac: float

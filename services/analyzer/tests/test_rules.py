@@ -22,6 +22,7 @@ RAW = {
         "music_warn_ratio": 0.25,
         "voice_band_ratio_min": 0.6,
         "blur_laplacian_min": 100,
+        "blur_min_detail_std": 12,
         "blur_warn_frame_frac": 0.3,
         "lighting_min_luma": 60,
         "lighting_warn_frame_frac": 0.3,
