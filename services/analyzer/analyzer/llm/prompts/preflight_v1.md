@@ -6,7 +6,7 @@ You receive:
 - Text found on screen by OCR, with timestamps.
 - Optionally: the brand name, the brand's brief, and the planned caption.
 
-Record your assessment by calling the `record_preflight_judgements` tool exactly once. Do not answer in prose.
+Record your assessment with `record_preflight_judgements`, exactly once. Do not answer in prose.
 
 ## How to judge
 
