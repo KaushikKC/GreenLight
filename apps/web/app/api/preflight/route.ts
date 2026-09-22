@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { createPreflight } from "@/lib/preflight";
+import { createPreflight, getPreflightForUser } from "@/lib/preflight";
 import { createPreflightInput, ownsKey } from "@/lib/preflight-schema";
 import { uploadLimits } from "@/lib/rules";
 import { getOrCreateUserId } from "@/lib/session";
@@ -32,6 +32,13 @@ export async function POST(request: Request) {
   }
   if (size > uploadLimits().maxBytes) {
     return NextResponse.json({ error: "too_large" }, { status: 413 });
+  }
+
+  if (parsed.data.parentId) {
+    const parent = await getPreflightForUser(parsed.data.parentId, userId);
+    if (!parent) {
+      return NextResponse.json({ error: "parent_not_found" }, { status: 404 });
+    }
   }
 
   const preflight = await createPreflight(userId, parsed.data, size);
