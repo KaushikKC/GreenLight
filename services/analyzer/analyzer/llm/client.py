@@ -53,7 +53,9 @@ class LLM:
         s = get_settings()
         if not s.anthropic_api_key:
             raise LLMError("AI review isn't configured (no ANTHROPIC_API_KEY).")
-        return cls(client=anthropic.Anthropic(api_key=s.anthropic_api_key, timeout=s.llm_timeout_s), **kw)
+        return cls(
+            client=anthropic.Anthropic(api_key=s.anthropic_api_key, timeout=s.llm_timeout_s), **kw
+        )
 
     def _log(self, *, model: str, purpose: str, usage: Any, latency_ms: int) -> float | None:
         input_tokens = getattr(usage, "input_tokens", 0) or 0
@@ -79,7 +81,15 @@ class LLM:
                        VALUES (%s, %s, %s, %s, %s, %s, %s)""",
                     (self.job_id, *row.values()),
                 )
-        log.info("llm %s %s: %s in / %s out, $%s, %sms", purpose, model, row["input_tokens"], output_tokens, cost, latency_ms)
+        log.info(
+            "llm %s %s: %s in / %s out, $%s, %sms",
+            purpose,
+            model,
+            row["input_tokens"],
+            output_tokens,
+            cost,
+            latency_ms,
+        )
         return cost
 
     def call_tool(
@@ -109,7 +119,9 @@ class LLM:
                 resp = self.client.messages.create(
                     model=model,
                     max_tokens=max_tokens,
-                    system=[{"type": "text", "text": system, "cache_control": {"type": "ephemeral"}}],
+                    system=[
+                        {"type": "text", "text": system, "cache_control": {"type": "ephemeral"}}
+                    ],
                     tools=[tool],
                     tool_choice={"type": "auto"},
                     messages=messages,
@@ -121,12 +133,15 @@ class LLM:
             except (anthropic.APIStatusError, anthropic.APIConnectionError) as e:
                 # The SDK has already retried 429/5xx/connection errors.
                 raise LLMError("AI review is temporarily unavailable.") from e
-            call_cost += self._log(
-                model=model,
-                purpose=purpose,
-                usage=resp.usage,
-                latency_ms=round((time.monotonic() - started) * 1000),
-            ) or 0.0
+            call_cost += (
+                self._log(
+                    model=model,
+                    purpose=purpose,
+                    usage=resp.usage,
+                    latency_ms=round((time.monotonic() - started) * 1000),
+                )
+                or 0.0
+            )
 
             if resp.stop_reason == "refusal":
                 raise LLMError("The AI reviewer declined to assess this video.")
@@ -142,7 +157,9 @@ class LLM:
                 except ValidationError as e:
                     problem = f"Your {tool_name} input was invalid: {e}. Call the tool again with corrected input."
                 else:
-                    return ToolResult(output=parsed, model=model, attempts=attempt, cost_usd=call_cost)
+                    return ToolResult(
+                        output=parsed, model=model, attempts=attempt, cost_usd=call_cost
+                    )
 
             log.warning("llm %s attempt %d invalid: %s", purpose, attempt, problem[:300])
             messages.append({"role": "assistant", "content": resp.content})
@@ -151,7 +168,12 @@ class LLM:
                     {
                         "role": "user",
                         "content": [
-                            {"type": "tool_result", "tool_use_id": block.id, "is_error": True, "content": problem}
+                            {
+                                "type": "tool_result",
+                                "tool_use_id": block.id,
+                                "is_error": True,
+                                "content": problem,
+                            }
                         ],
                     }
                 )
