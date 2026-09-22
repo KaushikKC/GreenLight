@@ -19,7 +19,9 @@ def _words(text: str) -> set[str]:
     return {w for w in re.findall(r"[a-z0-9']+", text.lower()) if len(w) >= MIN_WORD_LEN}
 
 
-def _result(status: str, share: float, evidence: dict, estimate: bool, first_gap: Frame | None) -> CheckResult:
+def _result(
+    status: str, share: float, evidence: dict, estimate: bool, first_gap: Frame | None
+) -> CheckResult:
     if status == "pass":
         return CheckResult(
             id="read.captions",
@@ -82,7 +84,11 @@ def _with_transcript(ctx: AnalysisContext) -> CheckResult:
         return _no_speech(False)
     share = captioned / judged
     status = "pass" if share >= rules.captions_min_frame_frac else "warn"
-    evidence = {"segments_checked": judged, "segments_captioned": captioned, "method": "transcript_overlap"}
+    evidence = {
+        "segments_checked": judged,
+        "segments_captioned": captioned,
+        "method": "transcript_overlap",
+    }
     return _result(status, share, evidence, False, first_gap)
 
 
@@ -94,7 +100,11 @@ def _vad_proxy(ctx: AnalysisContext) -> CheckResult:
     share = len(with_text) / len(speech_frames)
     status = "pass" if share >= ctx.rules.captions_min_frame_frac else "warn"
     first_gap = next((f for f in speech_frames if f not in with_text), None)
-    evidence = {"speech_frames": len(speech_frames), "speech_frames_with_text": len(with_text), "method": "vad_proxy"}
+    evidence = {
+        "speech_frames": len(speech_frames),
+        "speech_frames_with_text": len(with_text),
+        "method": "vad_proxy",
+    }
     return _result(status, share, evidence, True, first_gap)
 
 
@@ -105,7 +115,9 @@ def check(ctx: AnalysisContext) -> CheckResult:
         return _with_transcript(ctx)
     if ctx.audio is not None:
         return _vad_proxy(ctx)
-    return couldnt_check("read.captions", "readability", "The transcription and audio steps both failed.")
+    return couldnt_check(
+        "read.captions", "readability", "The transcription and audio steps both failed."
+    )
 
 
 SPEC = CheckSpec("read.captions", "readability", check, needs=("ocr",))
