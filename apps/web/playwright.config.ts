@@ -3,6 +3,8 @@ import path from "node:path";
 import { defineConfig } from "@playwright/test";
 
 // Happy path needs Postgres + MinIO running (`make infra && make migrate`).
+// Runs against a production build on its own port, so a long-lived `next dev`
+// (and its HMR cache) never leaks into the test.
 // The worker is started with AI review disabled so the run is free and
 // deterministic; AI-judged checks show "couldn't check".
 const analyzer = path.resolve(__dirname, "../../services/analyzer");
@@ -15,7 +17,7 @@ export default defineConfig({
   workers: 1,
   reporter: [["list"]],
   use: {
-    baseURL: "http://localhost:3000",
+    baseURL: "http://localhost:3100",
     // Uses the installed Google Chrome: no browser download needed.
     channel: "chrome",
     viewport: { width: 390, height: 844 },
@@ -26,10 +28,10 @@ export default defineConfig({
   },
   webServer: [
     {
-      command: "pnpm dev",
-      url: "http://localhost:3000/api/jobs",
-      reuseExistingServer: !process.env.CI,
-      timeout: 120_000,
+      command: "pnpm build && pnpm start --port 3100",
+      url: "http://localhost:3100/api/jobs",
+      reuseExistingServer: false,
+      timeout: 300_000,
     },
     {
       command: `cd "${analyzer}" && uv run python -m analyzer.worker 2>&1`,
