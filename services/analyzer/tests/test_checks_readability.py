@@ -1,6 +1,6 @@
 from analyzer.checks import read_captions, read_safe_zone, read_text_size
 from analyzer.models import AudioStats
-from tests.factories import ctx, frame, text
+from tests.factories import ctx, frame, text, transcript
 
 MIDDLE = (0.2, 0.45, 0.6, 0.05)
 BOTTOM = (0.1, 0.85, 0.8, 0.06)  # inside TikTok's bottom caption area
@@ -84,3 +84,28 @@ class TestTextSize:
         assert r.status == "warn"
         assert r.timestamp_s == 2.0
         assert r.evidence["small_count"] == 2
+
+
+class TestCaptionsWithTranscript:
+    SPEECH = transcript((0.0, 3.0, "this serum changed my skin"))
+
+    def test_matching_words_pass(self):
+        frames = [frame(1.0, text("this SERUM changed")), frame(2.0, text("my skin"))]
+        r = read_captions.check(ctx(frames=frames, transcript=self.SPEECH))
+        assert r.status == "pass"
+        assert not r.estimate
+        assert r.evidence["method"] == "transcript_overlap"
+
+    def test_unrelated_text_is_not_a_caption(self):
+        frames = [frame(1.0, text("SUMMER SALE")), frame(2.0, text("SUMMER SALE"))]
+        r = read_captions.check(ctx(frames=frames, transcript=self.SPEECH))
+        assert r.status == "warn"
+        assert r.timestamp_s == 1.0
+
+    def test_empty_transcript_is_na(self):
+        from analyzer.models import Transcript
+
+        assert read_captions.check(ctx(transcript=Transcript())).status == "na"
+
+    def test_no_transcript_or_audio_is_error(self):
+        assert read_captions.check(ctx(transcript=None, audio=None)).status == "error"
