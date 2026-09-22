@@ -1,4 +1,4 @@
-"""Output schema for the preflight vision call (tool `record_preflight_judgements`).
+"""Output schema for the preflight vision call (output `record_preflight_judgements`).
 
 Follows BUILD_PLAN §6.4, plus three additions marked (+): whether the product
 could be identified at all, a judgement on the on-screen hook text, and a
@@ -56,7 +56,7 @@ class OnScreenHook(BaseModel):
 
 class PreflightJudgements(BaseModel):
     product_identified: bool = Field(
-        description="(+) False if you can't tell which product/brand the ad is for."
+        description="(+) True if you know what is advertised (brand name, brief or speech), even if it's never shown."
     )
     product_first_visible_s: float | None = Field(
         description="Earliest frame timestamp where the product or brand is visible; null if never."
