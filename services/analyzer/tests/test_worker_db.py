@@ -94,26 +94,27 @@ def test_llm_calls_are_logged_with_cost(jobdb):
     from pydantic import BaseModel
 
     from analyzer.llm.client import LLM
-    from tests.fake_anthropic import FakeAnthropic, response, tool_use, usage
+    from analyzer.llm.types import Text
+    from tests.fake_llm import FakeProvider, reply
 
     class Out(BaseModel):
         ok: bool
 
     job_id = jobdb.insert()
-    fake = FakeAnthropic(response(tool_use("t", {"ok": True}), u=usage(inp=1000, out=100)))
-    LLM(client=fake, conn=jobdb.conn, job_id=job_id).call_tool(
+    fake = FakeProvider(reply({"ok": True}, input_tokens=1000, output_tokens=100), cost=0.003)
+    LLM(provider=fake, conn=jobdb.conn, job_id=job_id).structured(
         purpose="test_logging",
-        model="claude-sonnet-5",
         system="s",
-        content=[{"type": "text", "text": "x"}],
+        parts=[Text("x")],
         output=Out,
-        tool_name="t",
-        tool_description="d",
+        name="t",
+        description="d",
     )
     row = jobdb.conn.execute("SELECT * FROM llm_calls WHERE job_id = %s", (job_id,)).fetchone()
     jobdb.conn.execute("DELETE FROM llm_calls WHERE job_id = %s", (job_id,))
     jobdb.conn.commit()
     assert row["purpose"] == "test_logging"
+    assert row["model"] == "fake-vision"
     assert (row["input_tokens"], row["output_tokens"]) == (1000, 100)
     assert float(row["cost_usd"]) == pytest.approx(0.003)
     assert row["latency_ms"] is not None
