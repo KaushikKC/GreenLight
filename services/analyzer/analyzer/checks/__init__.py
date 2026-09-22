@@ -6,11 +6,18 @@ from analyzer.checks import (
     audio_loudness,
     audio_music,
     audio_voice_clarity,
+    comp_disclosure,
     format_aspect,
     format_duration,
     format_resolution,
     hook_pacing,
+    hook_spoken,
     hook_text,
+    hook_visual_product,
+    msg_brief_donts,
+    msg_brief_points,
+    msg_claims,
+    msg_cta,
     read_captions,
     read_safe_zone,
     read_text_size,
@@ -22,7 +29,9 @@ from analyzer.models import AnalysisContext, CheckResult
 
 log = logging.getLogger(__name__)
 
-DETERMINISTIC: list[CheckSpec] = [
+ALL_CHECKS: list[CheckSpec] = [
+    hook_visual_product.SPEC,
+    hook_spoken.SPEC,
     hook_text.SPEC,
     hook_pacing.SPEC,
     format_aspect.SPEC,
@@ -31,6 +40,11 @@ DETERMINISTIC: list[CheckSpec] = [
     read_safe_zone.SPEC,
     read_captions.SPEC,
     read_text_size.SPEC,
+    msg_brief_points.SPEC,
+    msg_brief_donts.SPEC,
+    msg_cta.SPEC,
+    msg_claims.SPEC,
+    comp_disclosure.SPEC,
     audio_loudness.SPEC,
     audio_music.SPEC,
     audio_voice_clarity.SPEC,
@@ -50,7 +64,7 @@ def _missing(ctx: AnalysisContext, needs: tuple[str, ...]) -> list[str]:
     return missing
 
 
-def run_checks(ctx: AnalysisContext, specs: list[CheckSpec] = DETERMINISTIC) -> list[CheckResult]:
+def run_checks(ctx: AnalysisContext, specs: list[CheckSpec] = ALL_CHECKS) -> list[CheckResult]:
     results = []
     for spec in specs:
         missing = _missing(ctx, spec.needs)
