@@ -1,4 +1,4 @@
-from analyzer.checks import DETERMINISTIC, run_checks
+from analyzer.checks import ALL_CHECKS, run_checks
 from analyzer.checks.base import CheckSpec
 from analyzer.models import AnalysisContext, CheckResult
 from tests.factories import ctx, frame
@@ -6,7 +6,7 @@ from tests.factories import ctx, frame
 
 def test_runs_every_deterministic_check_once():
     results = run_checks(ctx())
-    assert [r.id for r in results] == [s.id for s in DETERMINISTIC]
+    assert [r.id for r in results] == [s.id for s in ALL_CHECKS]
     assert len({r.id for r in results}) == len(results)
 
 
