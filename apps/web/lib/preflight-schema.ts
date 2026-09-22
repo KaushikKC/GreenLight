@@ -30,6 +30,8 @@ export const createPreflightInput = z.object({
   briefText: optionalText(10_000),
   captionText: optionalText(2_200),
   brandName: optionalText(100),
+  /** Set when this upload is a re-check of an earlier preflight. */
+  parentId: z.uuid().optional(),
 });
 export type CreatePreflightInput = z.infer<typeof createPreflightInput>;
 
