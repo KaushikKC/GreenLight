@@ -32,7 +32,13 @@ def _clean(node: Any) -> Any:
         return [_clean(n) for n in node]
     if not isinstance(node, dict):
         return node
-    out = {k: _clean(v) for k, v in node.items() if k not in UNSUPPORTED_KEYS}
+    out = {}
+    for key, value in node.items():
+        if key in ("properties", "$defs"):
+            # Maps of name → schema: keep every name, clean each schema.
+            out[key] = {name: _clean(sub) for name, sub in value.items()}
+        elif key not in UNSUPPORTED_KEYS:
+            out[key] = _clean(value)
     if out.get("type") == "object" and "properties" in out:
         out["additionalProperties"] = False
         out["required"] = list(out["properties"])
