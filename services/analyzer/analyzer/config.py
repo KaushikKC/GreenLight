@@ -25,11 +25,21 @@ class Settings(BaseSettings):
     s3_secret_access_key: str | None = None
     s3_force_path_style: bool = True
 
-    # Model names always come from env; never hard-code them.
+    # LLM provider: "anthropic", "gemini", or unset = pick whichever has a key
+    # (Anthropic first). Model names always come from env; never hard-code them.
+    llm_provider: str | None = None
+    llm_timeout_s: float = 120.0
+
     anthropic_api_key: str | None = None
     model_vision: str | None = None
     model_fast: str | None = None
-    llm_timeout_s: float = 120.0
+
+    # Google AI Studio key (free tier available, no card needed).
+    gemini_api_key: str | None = None
+    gemini_model_vision: str | None = None
+    gemini_model_fast: str | None = None
+    # On the free tier calls cost $0; set false on a paid Gemini plan.
+    gemini_free_tier: bool = True
 
     # Local transcription (faster-whisper).
     whisper_model: str = "small"
