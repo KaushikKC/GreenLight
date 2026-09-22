@@ -69,18 +69,24 @@ class GeminiProvider:
             max_output_tokens=max_tokens,
         )
         contents = [
-            types.Content(role="user" if t.role == "user" else "model", parts=[_part(p) for p in t.parts])
+            types.Content(
+                role="user" if t.role == "user" else "model", parts=[_part(p) for p in t.parts]
+            )
             for t in turns
         ]
         try:
-            resp = self.client.models.generate_content(model=model, contents=contents, config=config)
+            resp = self.client.models.generate_content(
+                model=model, contents=contents, config=config
+            )
         except errors.ClientError as e:
             if e.code == 429:
                 raise LLMError("Gemini free-tier rate limit reached. Try again in a minute.") from e
             if e.code == 404:
                 raise LLMError(f"AI model {model!r} isn't available.") from e
             if e.code in (400, 401, 403) and "key" in str(e).lower():
-                raise LLMError("AI review isn't configured (the Gemini API key was rejected).") from e
+                raise LLMError(
+                    "AI review isn't configured (the Gemini API key was rejected)."
+                ) from e
             log.warning("gemini client error %s: %s", e.code, e)
             raise LLMError("The AI review request was rejected.") from e
         except errors.APIError as e:
@@ -94,19 +100,23 @@ class GeminiProvider:
         cached = (getattr(meta, "cached_content_token_count", 0) or 0) if meta else 0
         out = (getattr(meta, "candidates_token_count", 0) or 0) if meta else 0
         thoughts = (getattr(meta, "thoughts_token_count", 0) or 0) if meta else 0
-        usage = Usage(input_tokens=prompt - cached, output_tokens=out + thoughts, cache_read_tokens=cached)
+        usage = Usage(
+            input_tokens=prompt - cached, output_tokens=out + thoughts, cache_read_tokens=cached
+        )
 
         if _is_refusal(resp):
             return Reply(output=None, raw_text="", usage=usage, refused=True)
         try:
             text = resp.text or ""
-        except Exception:  # .text raises when there are no usable candidates
+        except (ValueError, AttributeError):  # no usable candidates
             text = ""
         try:
             parsed = json.loads(text)
         except json.JSONDecodeError:
             parsed = None
-        return Reply(output=parsed if isinstance(parsed, dict) else None, raw_text=text, usage=usage)
+        return Reply(
+            output=parsed if isinstance(parsed, dict) else None, raw_text=text, usage=usage
+        )
 
     def cost_usd(self, model: str, usage: Usage) -> float | None:
         # Free tier: $0. On a paid plan we don't track Gemini rates yet.
