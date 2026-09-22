@@ -8,6 +8,7 @@ dependencies = [
     "boto3>=1.43.100",
     "fastapi>=0.115",
     "faster-whisper>=1.2.1",
+    "google-genai>=2.25.0",
     "numpy>=2.4.6",
     "opencv-python-headless>=5.0.0.93",
     "psycopg[binary]>=3.2",
