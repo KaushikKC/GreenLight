@@ -15,7 +15,7 @@ def check(ctx: AnalysisContext) -> CheckResult:
             explanation="Paste the brand brief to check that every talking point is covered.",
         )
     if ctx.llm is None:
-        return couldnt_check("msg.brief_points", "message", "The AI review step failed.")
+        return couldnt_check("msg.brief_points", "message", "The AI review step didn't complete.")
     points = ctx.llm.brief_points
     evidence = {"points": [p.model_dump() for p in points]}
     if not points:

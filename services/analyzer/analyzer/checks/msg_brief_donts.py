@@ -15,7 +15,7 @@ def check(ctx: AnalysisContext) -> CheckResult:
             explanation="Paste the brand brief to check its dos and don'ts.",
         )
     if ctx.llm is None:
-        return couldnt_check("msg.brief_donts", "message", "The AI review step failed.")
+        return couldnt_check("msg.brief_donts", "message", "The AI review step didn't complete.")
     violations = ctx.llm.brief_violations
     if not violations:
         return CheckResult(

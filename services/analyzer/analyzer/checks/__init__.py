@@ -53,6 +53,16 @@ ALL_CHECKS: list[CheckSpec] = [
 ]
 
 
+STEP_NAMES = {
+    "frames": "frame sampling",
+    "ocr": "on-screen text reading",
+    "audio": "audio analysis",
+    "transcript": "transcription",
+    "scene_cuts": "scene detection",
+    "llm": "AI review",
+}
+
+
 def _missing(ctx: AnalysisContext, needs: tuple[str, ...]) -> list[str]:
     missing = []
     for need in needs:
@@ -71,7 +81,10 @@ def run_checks(ctx: AnalysisContext, specs: list[CheckSpec] = ALL_CHECKS) -> lis
         if missing:
             results.append(
                 couldnt_check(
-                    spec.id, spec.group, f"The {', '.join(missing)} step failed.", spec.estimate
+                    spec.id,
+                    spec.group,
+                    f"The {' and '.join(STEP_NAMES.get(m, m) for m in missing)} step didn't complete.",
+                    spec.estimate,
                 )
             )
             continue

@@ -37,3 +37,8 @@ def test_spec_estimate_flag_is_applied():
     results = {r.id: r for r in run_checks(ctx())}
     assert results["audio.music"].estimate
     assert not results["format.aspect"].estimate
+
+
+def test_failed_step_message_uses_friendly_step_name():
+    results = {r.id: r for r in run_checks(ctx(llm=None))}
+    assert results["msg.claims"].explanation == "The AI review step didn't complete."
