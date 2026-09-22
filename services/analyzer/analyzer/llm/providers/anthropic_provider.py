@@ -51,12 +51,21 @@ class AnthropicProvider:
                 model=model,
                 max_tokens=max_tokens,
                 system=[{"type": "text", "text": system, "cache_control": {"type": "ephemeral"}}],
-                tools=[{"name": name, "description": description, "strict": True, "input_schema": schema}],
+                tools=[
+                    {
+                        "name": name,
+                        "description": description,
+                        "strict": True,
+                        "input_schema": schema,
+                    }
+                ],
                 tool_choice={"type": "auto"},
                 messages=[{"role": t.role, "content": [_block(p) for p in t.parts]} for t in turns],
             )
         except anthropic.AuthenticationError as e:
-            raise LLMError("AI review isn't configured (the Anthropic API key was rejected).") from e
+            raise LLMError(
+                "AI review isn't configured (the Anthropic API key was rejected)."
+            ) from e
         except anthropic.NotFoundError as e:
             raise LLMError(f"AI model {model!r} isn't available.") from e
         except (anthropic.APIStatusError, anthropic.APIConnectionError) as e:
@@ -81,5 +90,9 @@ class AnthropicProvider:
 
     def cost_usd(self, model: str, usage: Usage) -> float | None:
         return cost_usd(
-            model, usage.input_tokens, usage.output_tokens, usage.cache_write_tokens, usage.cache_read_tokens
+            model,
+            usage.input_tokens,
+            usage.output_tokens,
+            usage.cache_write_tokens,
+            usage.cache_read_tokens,
         )
