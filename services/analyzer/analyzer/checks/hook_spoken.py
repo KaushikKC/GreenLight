@@ -1,7 +1,15 @@
 """hook.spoken: does speech start by ~1.5s (D) and is the opening line a hook (L)?"""
 
+import re
+
 from analyzer.checks.base import AI_UNAVAILABLE, CheckSpec, fmt_t
 from analyzer.models import AnalysisContext, CheckResult
+
+
+def _first_sentence(text: str) -> str:
+    match = re.match(r"(.+?[.!?])(\s|$)", text.strip())
+    return match.group(1) if match else text.strip()
+
 
 HOOK_TYPE_LABELS = {
     "question": "a question",
@@ -24,7 +32,7 @@ def check(ctx: AnalysisContext) -> CheckResult:
             explanation="Nobody speaks in this video, so the hook relies on visuals and on-screen text.",
         )
 
-    opening = (j.opening_line if j and j.opening_line else None) or (
+    opening = (j.opening_line if j and j.opening_line else None) or _first_sentence(
         transcript.segments[0].text if transcript.segments else ""
     )
     timing_ok = first <= rules.hook_speech_start_s

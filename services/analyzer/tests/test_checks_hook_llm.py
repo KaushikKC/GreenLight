@@ -81,3 +81,9 @@ class TestHookTextWithLlm:
         r = hook_text.check(ctx(frames=HOOK_FRAMES, llm=j))
         assert r.status == "warn"
         assert "Unrelated" in r.explanation
+
+
+def test_without_llm_quotes_only_first_sentence():
+    long = transcript((0.2, 5.0, "Stop scrolling. This serum changed my skin."))
+    r = hook_spoken.check(ctx(transcript=long, llm=None))
+    assert "“Stop scrolling.”" in r.explanation
