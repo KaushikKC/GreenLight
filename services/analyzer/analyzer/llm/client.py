@@ -1,8 +1,8 @@
-"""Anthropic wrapper: structured output via one strict tool, validated with Pydantic.
+"""Structured LLM calls, validated with Pydantic, on any configured provider.
 
-- tool_choice is "auto" (forced tool choice is rejected by some models, and the
-  model name comes from env), so we check a call was made.
-- Validation failures are fed back to the model and retried once; a second
+- The provider turns our JSON schema into its native structured-output feature
+  (Anthropic: a strict tool; Gemini: JSON-schema response mode).
+- Invalid or missing output is fed back to the model and retried once; a second
   failure raises LLMError so the caller can mark its checks as `error`.
 - Every API call is logged to llm_calls with tokens, cost and latency.
 """
@@ -13,13 +13,13 @@ from dataclasses import dataclass, field
 from typing import Any, Generic, TypeVar
 from uuid import UUID
 
-import anthropic
 import psycopg
 from pydantic import BaseModel, ValidationError
 
 from analyzer.config import get_settings
-from analyzer.llm.pricing import cost_usd
+from analyzer.llm.errors import LLMError
 from analyzer.llm.schema import strict_schema
+from analyzer.llm.types import Part, Provider, Text, Turn, Usage
 
 log = logging.getLogger(__name__)
 
@@ -27,9 +27,7 @@ T = TypeVar("T", bound=BaseModel)
 
 MAX_ATTEMPTS = 2  # first try + one retry
 
-
-class LLMError(Exception):
-    """The LLM step couldn't produce a usable answer. Message is safe to show."""
+__all__ = ["LLM", "LLMError", "ToolResult", "provider_from_settings"]
 
 
 @dataclass
@@ -40,9 +38,54 @@ class ToolResult(Generic[T]):
     cost_usd: float | None
 
 
+def provider_from_settings() -> Provider:
+    """Explicit LLM_PROVIDER wins; otherwise whichever key is set, Anthropic first."""
+    s = get_settings()
+    choice = (s.llm_provider or "").strip().lower()
+    if not choice:
+        choice = "anthropic" if s.anthropic_api_key else "gemini" if s.gemini_api_key else ""
+
+    if choice == "anthropic":
+        if not s.anthropic_api_key:
+            raise LLMError(
+                "AI review isn't configured (LLM_PROVIDER=anthropic but no ANTHROPIC_API_KEY)."
+            )
+        import anthropic
+
+        from analyzer.llm.providers.anthropic_provider import AnthropicProvider
+
+        client = anthropic.Anthropic(api_key=s.anthropic_api_key, timeout=s.llm_timeout_s)
+        return AnthropicProvider(client, vision_model=s.model_vision)
+
+    if choice == "gemini":
+        if not s.gemini_api_key:
+            raise LLMError(
+                "AI review isn't configured (LLM_PROVIDER=gemini but no GEMINI_API_KEY)."
+            )
+        from google import genai
+        from google.genai import types
+
+        from analyzer.llm.providers.gemini_provider import GeminiProvider
+
+        client = genai.Client(
+            api_key=s.gemini_api_key,
+            http_options=types.HttpOptions(
+                timeout=int(s.llm_timeout_s * 1000),  # milliseconds
+                retry_options=types.HttpRetryOptions(attempts=3),
+            ),
+        )
+        return GeminiProvider(
+            client, vision_model=s.gemini_model_vision, free_tier=s.gemini_free_tier
+        )
+
+    if choice:
+        raise LLMError(f"Unknown LLM_PROVIDER {choice!r}; use 'anthropic' or 'gemini'.")
+    raise LLMError("AI review isn't configured: set GEMINI_API_KEY (free) or ANTHROPIC_API_KEY.")
+
+
 @dataclass
 class LLM:
-    client: Any = None  # anthropic.Anthropic, or a fake in tests
+    provider: Provider
     conn: psycopg.Connection | None = None
     job_id: UUID | None = None
     total_cost_usd: float = 0.0
@@ -50,24 +93,15 @@ class LLM:
 
     @classmethod
     def from_settings(cls, **kw) -> "LLM":
-        s = get_settings()
-        if not s.anthropic_api_key:
-            raise LLMError("AI review isn't configured (no ANTHROPIC_API_KEY).")
-        return cls(
-            client=anthropic.Anthropic(api_key=s.anthropic_api_key, timeout=s.llm_timeout_s), **kw
-        )
+        return cls(provider=provider_from_settings(), **kw)
 
-    def _log(self, *, model: str, purpose: str, usage: Any, latency_ms: int) -> float | None:
-        input_tokens = getattr(usage, "input_tokens", 0) or 0
-        output_tokens = getattr(usage, "output_tokens", 0) or 0
-        cache_write = getattr(usage, "cache_creation_input_tokens", 0) or 0
-        cache_read = getattr(usage, "cache_read_input_tokens", 0) or 0
-        cost = cost_usd(model, input_tokens, output_tokens, cache_write, cache_read)
+    def _log(self, *, model: str, purpose: str, usage: Usage, latency_ms: int) -> float | None:
+        cost = self.provider.cost_usd(model, usage)
         row = {
             "model": model,
             "purpose": purpose,
-            "input_tokens": input_tokens + cache_write + cache_read,
-            "output_tokens": output_tokens,
+            "input_tokens": usage.input_tokens + usage.cache_write_tokens + usage.cache_read_tokens,
+            "output_tokens": usage.output_tokens,
             "cost_usd": cost,
             "latency_ms": latency_ms,
         }
@@ -82,102 +116,73 @@ class LLM:
                     (self.job_id, *row.values()),
                 )
         log.info(
-            "llm %s %s: %s in / %s out, $%s, %sms",
+            "llm %s %s/%s: %s in / %s out, $%s, %sms",
             purpose,
+            self.provider.name,
             model,
             row["input_tokens"],
-            output_tokens,
+            usage.output_tokens,
             cost,
             latency_ms,
         )
         return cost
 
-    def call_tool(
+    def structured(
         self,
         *,
         purpose: str,
-        model: str,
         system: str,
-        content: list[dict[str, Any]],
+        parts: list[Part],
         output: type[T],
-        tool_name: str,
-        tool_description: str,
+        name: str,
+        description: str,
+        model: str | None = None,
         max_tokens: int = 16000,
     ) -> ToolResult[T]:
-        tool = {
-            "name": tool_name,
-            "description": tool_description,
-            "strict": True,
-            "input_schema": strict_schema(output),
-        }
-        messages: list[dict[str, Any]] = [{"role": "user", "content": content}]
+        model = model or self.provider.vision_model
+        if not model:
+            raise LLMError(f"AI review isn't configured (no model set for {self.provider.name}).")
+        schema = strict_schema(output)
+        turns = [Turn("user", list(parts))]
         call_cost = 0.0
 
         for attempt in range(1, MAX_ATTEMPTS + 1):
             started = time.monotonic()
-            try:
-                resp = self.client.messages.create(
-                    model=model,
-                    max_tokens=max_tokens,
-                    system=[
-                        {"type": "text", "text": system, "cache_control": {"type": "ephemeral"}}
-                    ],
-                    tools=[tool],
-                    tool_choice={"type": "auto"},
-                    messages=messages,
-                )
-            except anthropic.AuthenticationError as e:
-                raise LLMError("AI review isn't configured (the API key was rejected).") from e
-            except anthropic.NotFoundError as e:
-                raise LLMError(f"AI model {model!r} isn't available.") from e
-            except (anthropic.APIStatusError, anthropic.APIConnectionError) as e:
-                # The SDK has already retried 429/5xx/connection errors.
-                raise LLMError("AI review is temporarily unavailable.") from e
+            reply = self.provider.generate(
+                model=model,
+                system=system,
+                turns=turns,
+                schema=schema,
+                name=name,
+                description=description,
+                max_tokens=max_tokens,
+            )
+            latency_ms = round((time.monotonic() - started) * 1000)
             call_cost += (
-                self._log(
-                    model=model,
-                    purpose=purpose,
-                    usage=resp.usage,
-                    latency_ms=round((time.monotonic() - started) * 1000),
-                )
+                self._log(model=model, purpose=purpose, usage=reply.usage, latency_ms=latency_ms)
                 or 0.0
             )
 
-            if resp.stop_reason == "refusal":
+            if reply.refused:
                 raise LLMError("The AI reviewer declined to assess this video.")
-
-            block = next(
-                (b for b in resp.content if b.type == "tool_use" and b.name == tool_name), None
-            )
-            if block is None:
-                problem = f"You must call the {tool_name} tool with your answer."
+            if reply.output is None:
+                problem = (
+                    f"You must return your answer via {name}, as a JSON object matching the schema."
+                )
             else:
                 try:
-                    parsed = output.model_validate(block.input)
+                    parsed = output.model_validate(reply.output)
                 except ValidationError as e:
-                    problem = f"Your {tool_name} input was invalid: {e}. Call the tool again with corrected input."
+                    problem = f"Your {name} answer was invalid: {e}. Return it again with corrected values."
                 else:
                     return ToolResult(
                         output=parsed, model=model, attempts=attempt, cost_usd=call_cost
                     )
 
             log.warning("llm %s attempt %d invalid: %s", purpose, attempt, problem[:300])
-            messages.append({"role": "assistant", "content": resp.content})
-            if block is not None:
-                messages.append(
-                    {
-                        "role": "user",
-                        "content": [
-                            {
-                                "type": "tool_result",
-                                "tool_use_id": block.id,
-                                "is_error": True,
-                                "content": problem,
-                            }
-                        ],
-                    }
-                )
-            else:
-                messages.append({"role": "user", "content": problem})
+            turns += [
+                Turn("assistant", [Text(reply.raw_text or "(no answer)")]),
+                Turn("user", [Text(problem)]),
+            ]
 
         raise LLMError("The AI reviewer's answer couldn't be validated.")
