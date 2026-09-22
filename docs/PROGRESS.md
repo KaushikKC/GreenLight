@@ -1,5 +1,27 @@
 # Progress
 
+## Phase 2: Transcription + LLM checks 🟡 code complete, live LLM run pending (2026-09-22)
+
+### Done
+- **Transcription:** faster-whisper (`small`, int8, CPU, word timestamps, VAD filter). Model is downloaded on first use; Docker caches it in the `whisper-cache` volume.
+- **LLM client** (`llm/client.py`): one strict tool (`strict: true`, schema generated from Pydantic with unsupported constraints stripped), `tool_choice: auto` + a check that the tool was called (forced tool choice 400s on some models, and models come from env). Pydantic validation; invalid/missing call is fed back and retried once, then `LLMError` → dependent checks show "couldn't check". Refusals aren't retried. Every call is logged to `llm_calls` (tokens incl. cache, USD cost, latency). System prompt is cache-marked.
+- **Prompt:** `llm/prompts/preflight_v1.md`; `preflights.prompt_version` is set on every run.
+- **Vision call:** all hook frames + up to 8 later frames (each labelled `t=…s`), timestamped transcript, OCR text, brand, brief, caption. Schema = BUILD_PLAN §6.4 + `product_identified`, `on_screen_hook`, `brief_points[].mandatory`.
+- **New checks:** `hook.visual_product`, `hook.spoken` (timing + hook strength), `hook.text` (+ reinforcement judgement), `msg.brief_points`, `msg.brief_donts` (caps score), `msg.cta` (phrase match + LLM), `msg.claims`, `comp.disclosure` (caption/OCR/speech tags + LLM; caps score). `read.captions` now uses OCR-vs-transcript word overlap (VAD proxy remains as fallback, labelled estimate).
+- **Rules:** hook timing, CTA phrases/window and disclosure tags/phrases live in `platforms.json`.
+- **Report:** transcript segments; `meta.prompt_version`, `meta.llm_cost_usd`, `meta.llm_calls`, `meta.ai_review_error`.
+- **Tests:** 164 pytest (fake Anthropic client for the wrapper and call builder, every new check, llm_calls DB logging, real whisper on a `say` clip) + 15 vitest.
+- ✅ Verified end-to-end without an API key: transcript + deterministic halves run, LLM checks show "couldn't check", disclosure hard cap → 49 "Not ready".
+
+### Remaining for Phase 2 sign-off
+- Run once with a real `ANTHROPIC_API_KEY` to confirm brief-point/hook timestamps and the logged cost per run (target < $0.10).
+
+### Known issues / decisions
+- `comp.disclosure` with **no caption** provided and nothing on screen/spoken is a *warn*, not a fail (we can't see where #ad usually lives). With a caption and no disclosure anywhere it fails and caps the score.
+- Brief checks are `na` without a brief, `error` if a brief was given but the AI step failed.
+- Pricing table in `llm/pricing.py` is hand-maintained; unknown models log `cost_usd = NULL`.
+
+
 ## Phase 1: Upload + deterministic Preflight ✅ (2026-09-22)
 
 ### Done
