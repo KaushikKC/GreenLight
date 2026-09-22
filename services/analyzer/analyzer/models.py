@@ -4,6 +4,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
+from analyzer.llm.judgements import PreflightJudgements
 from analyzer.rules import Rules
 
 # --- media ------------------------------------------------------------------
@@ -88,7 +89,11 @@ class AnalysisContext(BaseModel):
     frames: list[Frame] | None = None
     scene_cuts: list[float] | None = None
     audio: AudioStats | None = None
+    transcript: Transcript | None = None
+    llm: PreflightJudgements | None = None
     caption_text: str | None = None
+    brief_text: str | None = None
+    brand_name: str | None = None
 
 
 # --- checks -------------------------------------------------------------------
