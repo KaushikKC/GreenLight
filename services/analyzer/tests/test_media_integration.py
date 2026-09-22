@@ -111,3 +111,16 @@ def test_pipeline_checks_on_clip(clip, monkeypatch):
     assert safe.timestamp_s >= 3.0
     assert "SHOP" in safe.evidence["text"].upper()
     assert results["hook.pacing"].status == "info"
+
+
+@pytest.mark.skipif(shutil.which("say") is None, reason="needs macOS `say` for a voice clip")
+def test_transcribe_voice_with_word_timestamps(tmp_path):
+    from analyzer.media.transcribe import transcribe
+
+    aiff = tmp_path / "voice.aiff"
+    subprocess.run(["say", "-o", str(aiff), "Stop scrolling. Tap the link to try it."], check=True)
+    t = transcribe(aiff)
+    text = " ".join(s.text for s in t.segments).lower()
+    assert "scrolling" in text and "link" in text
+    assert t.first_word_s is not None and t.first_word_s < 1.0
+    assert all(w.end >= w.start for w in t.words)
