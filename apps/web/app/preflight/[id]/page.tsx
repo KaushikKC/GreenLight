@@ -3,7 +3,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { z } from "zod";
 
-import { RawReport } from "@/components/preflight/raw-report";
+import { ReportView } from "@/components/report/report-view";
+import { SiteHeader } from "@/components/site-header";
 import { getPreflightForUser, toPreflightDto } from "@/lib/preflight";
 import { getUserId } from "@/lib/session";
 
@@ -17,14 +18,15 @@ export default async function PreflightPage(props: PageProps<"/preflight/[id]">)
   if (!preflight) notFound();
 
   return (
-    <main className="mx-auto flex w-full max-w-md flex-1 flex-col gap-6 px-4 py-10">
-      <header className="flex items-center justify-between gap-4">
-        <h1 className="text-2xl font-semibold tracking-tight">Preflight report</h1>
-        <Link href="/preflight/new" className="text-sm underline underline-offset-4">
+    <>
+      <SiteHeader>
+        <Link href="/preflight/new" className="text-sm font-semibold underline underline-offset-4">
           New check
         </Link>
-      </header>
-      <RawReport initial={await toPreflightDto(preflight)} />
-    </main>
+      </SiteHeader>
+      <main className="mx-auto flex w-full max-w-md flex-1 flex-col gap-5 px-4 pt-2 pb-6">
+        <ReportView initial={await toPreflightDto(preflight)} />
+      </main>
+    </>
   );
 }
