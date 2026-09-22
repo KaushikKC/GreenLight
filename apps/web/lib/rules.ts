@@ -1,14 +1,10 @@
 import "server-only";
 
-import { readFileSync } from "node:fs";
-import path from "node:path";
+// Single source of truth shared with the analyzer. Never hard-code these.
+// Imported (not read from disk) so the bundle carries exactly this file.
+import platformsJson from "../../../services/analyzer/rules/platforms.json";
 
 import type { Region } from "./report-types";
-
-// Single source of truth shared with the analyzer. Never hard-code these.
-const RULES_PATH =
-  process.env.RULES_PATH ??
-  path.resolve(process.cwd(), "../../services/analyzer/rules/platforms.json");
 
 type RawRegion = Omit<Region, "platform"> & { status?: string };
 type RawRules = {
@@ -21,9 +17,7 @@ type RawRules = {
   reels: { unsafe_regions: RawRegion[] };
 };
 
-let cached: RawRules | null = null;
-const raw = (): RawRules =>
-  (cached ??= JSON.parse(readFileSync(RULES_PATH, "utf8")) as RawRules);
+const raw = (): RawRules => platformsJson as unknown as RawRules;
 
 export function uploadLimits(): { maxBytes: number; maxDurationS: number } {
   const d = raw().defaults;
