@@ -1,6 +1,6 @@
 """msg.brief_donts: are any of the brief's don'ts broken? (LLM-judged)"""
 
-from analyzer.checks.base import CheckSpec, fmt_t
+from analyzer.checks.base import CheckSpec, couldnt_check, fmt_t
 from analyzer.models import AnalysisContext, CheckResult
 
 
@@ -14,6 +14,8 @@ def check(ctx: AnalysisContext) -> CheckResult:
             title="No brief provided",
             explanation="Paste the brand brief to check its dos and don'ts.",
         )
+    if ctx.llm is None:
+        return couldnt_check("msg.brief_donts", "message", "The AI review step failed.")
     violations = ctx.llm.brief_violations
     if not violations:
         return CheckResult(
@@ -40,4 +42,4 @@ def check(ctx: AnalysisContext) -> CheckResult:
     )
 
 
-SPEC = CheckSpec("msg.brief_donts", "message", check, needs=("llm",))
+SPEC = CheckSpec("msg.brief_donts", "message", check)

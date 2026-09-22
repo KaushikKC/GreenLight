@@ -1,6 +1,6 @@
 """msg.brief_points: is every talking point from the brief covered? (LLM-judged)"""
 
-from analyzer.checks.base import CheckSpec, fmt_t
+from analyzer.checks.base import CheckSpec, couldnt_check, fmt_t
 from analyzer.models import AnalysisContext, CheckResult
 
 
@@ -14,6 +14,8 @@ def check(ctx: AnalysisContext) -> CheckResult:
             title="No brief provided",
             explanation="Paste the brand brief to check that every talking point is covered.",
         )
+    if ctx.llm is None:
+        return couldnt_check("msg.brief_points", "message", "The AI review step failed.")
     points = ctx.llm.brief_points
     evidence = {"points": [p.model_dump() for p in points]}
     if not points:
@@ -63,4 +65,4 @@ def check(ctx: AnalysisContext) -> CheckResult:
     )
 
 
-SPEC = CheckSpec("msg.brief_points", "message", check, needs=("llm",))
+SPEC = CheckSpec("msg.brief_points", "message", check)
