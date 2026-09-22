@@ -3,7 +3,7 @@
 ANALYZER := services/analyzer
 SUITE ?= all
 
-.PHONY: dev infra infra-down migrate web worker test test-web test-analyzer eval install lint
+.PHONY: dev infra infra-down migrate web worker test test-web test-analyzer e2e eval install lint
 
 install:
 	pnpm install
@@ -39,6 +39,10 @@ test-web:
 
 test-analyzer:
 	cd $(ANALYZER) && uv run pytest -q
+
+## Playwright happy path (needs `make infra migrate`; builds the app, starts its own worker).
+e2e:
+	pnpm --filter web test:e2e
 
 lint:
 	pnpm --filter web lint
