@@ -85,8 +85,9 @@ export function ReportView({ initial, readOnly = false }: { initial: PreflightDt
         <p className="flex items-start gap-2 rounded-2xl bg-muted px-4 py-3 text-sm">
           <Sparkles className="mt-0.5 size-4 shrink-0" aria-hidden />
           <span>
-            AI review didn&apos;t run ({meta.ai_review_error}) Hook, brief and claims checks marked
-            &ldquo;couldn&apos;t check&rdquo;.
+            AI review wasn&apos;t available for this report
+            {readOnly ? "." : ` (${meta.ai_review_error.replace(/\.$/, "")}).`} Hook, brief and
+            claims checks are marked &ldquo;couldn&apos;t check&rdquo;.
           </span>
         </p>
       )}
