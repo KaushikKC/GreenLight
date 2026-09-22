@@ -29,6 +29,11 @@ class Settings(BaseSettings):
     anthropic_api_key: str | None = None
     model_vision: str | None = None
     model_fast: str | None = None
+    llm_timeout_s: float = 120.0
+
+    # Local transcription (faster-whisper).
+    whisper_model: str = "small"
+    whisper_compute_type: str = "int8"
 
 
 @lru_cache
