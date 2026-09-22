@@ -70,4 +70,16 @@ def find_phrase(text: str | None, phrases: Iterable[str]) -> str | None:
     return None
 
 
+def couldnt_check(id_: str, group: Group, reason: str, estimate: bool = False) -> CheckResult:
+    return CheckResult(
+        id=id_,
+        group=group,
+        status="error",
+        severity="info",
+        title="Couldn't check",
+        explanation=reason,
+        estimate=estimate,
+    )
+
+
 AI_UNAVAILABLE = " (AI review unavailable, so this is based on automatic checks only.)"

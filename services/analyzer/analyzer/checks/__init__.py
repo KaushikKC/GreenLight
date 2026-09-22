@@ -17,7 +17,7 @@ from analyzer.checks import (
     tech_blur,
     tech_lighting,
 )
-from analyzer.checks.base import CheckSpec
+from analyzer.checks.base import CheckSpec, couldnt_check
 from analyzer.models import AnalysisContext, CheckResult
 
 log = logging.getLogger(__name__)
@@ -50,29 +50,17 @@ def _missing(ctx: AnalysisContext, needs: tuple[str, ...]) -> list[str]:
     return missing
 
 
-def couldnt_check(spec: CheckSpec, reason: str) -> CheckResult:
-    return CheckResult(
-        id=spec.id,
-        group=spec.group,
-        status="error",
-        severity="info",
-        title="Couldn't check",
-        explanation=reason,
-        estimate=spec.estimate,
-    )
-
-
 def run_checks(ctx: AnalysisContext, specs: list[CheckSpec] = DETERMINISTIC) -> list[CheckResult]:
     results = []
     for spec in specs:
         missing = _missing(ctx, spec.needs)
         if missing:
-            results.append(couldnt_check(spec, f"The {', '.join(missing)} step failed."))
+            results.append(couldnt_check(spec.id, spec.group, f"The {', '.join(missing)} step failed.", spec.estimate))
             continue
         try:
             result = spec.fn(ctx)
         except Exception:  # one broken check must not block the report
             log.exception("check %s crashed", spec.id)
-            result = couldnt_check(spec, "Something went wrong running this check.")
+            result = couldnt_check(spec.id, spec.group, "Something went wrong running this check.", spec.estimate)
         results.append(result.model_copy(update={"estimate": result.estimate or spec.estimate}))
     return results
