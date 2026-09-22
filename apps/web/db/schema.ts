@@ -1,5 +1,6 @@
 import { sql } from "drizzle-orm";
 import {
+  type AnyPgColumn,
   boolean,
   index,
   integer,
@@ -118,6 +119,12 @@ export const preflights = pgTable("preflights", {
     .notNull()
     .references(() => videos.id, { onDelete: "cascade" }),
   platform: platform("platform").notNull(),
+  /** Re-checks point at the preflight they're a new version of. */
+  parentId: uuid("parent_id").references((): AnyPgColumn => preflights.id, {
+    onDelete: "set null",
+  }),
+  /** Set when the creator shares a read-only link. */
+  shareToken: text("share_token").unique(),
   briefText: text("brief_text"),
   captionText: text("caption_text"),
   brandName: text("brand_name"),
