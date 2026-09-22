@@ -27,7 +27,12 @@ def check(ctx: AnalysisContext) -> CheckResult:
     found = _deterministic_cta(ctx, start)
     evidence = {"window_start_s": round(start, 2), "llm": llm_cta.model_dump() if llm_cta else None}
 
-    if llm_cta and llm_cta.present and llm_cta.timestamp_s is not None and llm_cta.timestamp_s >= start:
+    if (
+        llm_cta
+        and llm_cta.present
+        and llm_cta.timestamp_s is not None
+        and llm_cta.timestamp_s >= start
+    ):
         return CheckResult(
             id="msg.cta",
             group="message",
