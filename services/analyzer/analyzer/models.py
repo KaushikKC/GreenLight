@@ -46,6 +46,40 @@ class AudioStats(BaseModel):
     voice_band_ratio: float | None = None
 
 
+class Word(BaseModel):
+    start: float
+    end: float
+    text: str
+
+
+class Segment(BaseModel):
+    start: float
+    end: float
+    text: str
+    words: list[Word] = Field(default_factory=list)
+
+
+class Transcript(BaseModel):
+    language: str | None = None
+    segments: list[Segment] = Field(default_factory=list)
+
+    @property
+    def words(self) -> list[Word]:
+        return [w for s in self.segments for w in s.words]
+
+    @property
+    def first_word_s(self) -> float | None:
+        words = self.words
+        return words[0].start if words else None
+
+    def text_between(self, start: float, end: float) -> str:
+        return " ".join(w.text for w in self.words if w.end >= start and w.start <= end)
+
+    def timestamped(self) -> str:
+        """Transcript as `[12.4s–15.0s] text` lines, for prompts."""
+        return "\n".join(f"[{s.start:.1f}s–{s.end:.1f}s] {s.text}" for s in self.segments)
+
+
 class AnalysisContext(BaseModel):
     """Everything a check may look at. Steps that failed leave their field None."""
 
