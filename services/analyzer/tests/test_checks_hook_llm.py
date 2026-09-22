@@ -23,7 +23,9 @@ class TestVisualProduct:
         assert "never" in r.explanation
 
     def test_unknown_product_is_na(self):
-        r = hook_visual_product.check(ctx(llm=judgements(product_identified=False, product_first_visible_s=None)))
+        r = hook_visual_product.check(
+            ctx(llm=judgements(product_identified=False, product_first_visible_s=None))
+        )
         assert r.status == "na"
 
 
@@ -41,13 +43,17 @@ class TestSpoken:
         assert "2.6s" in r.explanation
 
     def test_weak_hook_warns(self):
-        r = hook_spoken.check(ctx(transcript=SPEECH, llm=judgements(hook_strength=2, hook_reason="Generic greeting")))
+        r = hook_spoken.check(
+            ctx(transcript=SPEECH, llm=judgements(hook_strength=2, hook_reason="Generic greeting"))
+        )
         assert r.status == "warn"
         assert "Generic greeting" in r.explanation
 
     def test_late_and_weak_fails(self):
         late = transcript((3.0, 4.0, "Hi guys"))
-        r = hook_spoken.check(ctx(transcript=late, llm=judgements(hook_type="none", hook_strength=1)))
+        r = hook_spoken.check(
+            ctx(transcript=late, llm=judgements(hook_type="none", hook_strength=1))
+        )
         assert r.status == "fail"
 
     def test_no_speech_is_na(self):
@@ -59,14 +65,19 @@ class TestSpoken:
         assert "AI review unavailable" in r.explanation
 
 
-class TestHookTextWithLlm:
-    FRAMES = [frame(0.5, text("DRY SKIN?"))]
+HOOK_FRAMES = [frame(0.5, text("DRY SKIN?"))]
 
+
+class TestHookTextWithLlm:
     def test_reinforcing_text_passes(self):
-        assert hook_text.check(ctx(frames=self.FRAMES, llm=judgements())).status == "pass"
+        assert hook_text.check(ctx(frames=HOOK_FRAMES, llm=judgements())).status == "pass"
 
     def test_distracting_text_warns(self):
-        j = judgements(on_screen_hook=OnScreenHook(text="DRY SKIN?", reinforces_hook=False, reason="Unrelated to the spoken hook."))
-        r = hook_text.check(ctx(frames=self.FRAMES, llm=j))
+        j = judgements(
+            on_screen_hook=OnScreenHook(
+                text="DRY SKIN?", reinforces_hook=False, reason="Unrelated to the spoken hook."
+            )
+        )
+        r = hook_text.check(ctx(frames=HOOK_FRAMES, llm=j))
         assert r.status == "warn"
         assert "Unrelated" in r.explanation
