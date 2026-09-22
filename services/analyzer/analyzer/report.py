@@ -48,7 +48,10 @@ def build_report(
         "score_breakdown": score.model_dump(exclude={"score", "verdict"}),
         "checks": [c.model_dump() for c in checks],
         "fix_list": fix_list(checks),
-        "transcript": [],  # Phase 2
+        "transcript": [
+            {"start": s.start, "end": s.end, "text": s.text}
+            for s in (ctx.transcript.segments if ctx.transcript else [])
+        ],
         "meta": {
             "duration_s": p.duration_s,
             "width": p.width,
