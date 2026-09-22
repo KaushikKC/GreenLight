@@ -67,6 +67,8 @@ class GeminiProvider:
             response_mime_type="application/json",
             response_json_schema=inline_refs(schema),
             max_output_tokens=max_tokens,
+            # We pass no Python tools; keep the SDK from trying function calling.
+            automatic_function_calling=types.AutomaticFunctionCallingConfig(disable=True),
         )
         contents = [
             types.Content(
