@@ -1,5 +1,6 @@
 """Shared helpers for checks. Every check is a pure function of AnalysisContext."""
 
+import re
 from collections.abc import Callable, Iterable
 from dataclasses import dataclass
 
@@ -53,3 +54,20 @@ def overlap_fraction(box: tuple[float, float, float, float], region: Region) -> 
 
 def in_segments(t: float, segments: list[tuple[float, float]]) -> bool:
     return any(start <= t <= end for start, end in segments)
+
+
+def find_phrase(text: str | None, phrases: Iterable[str]) -> str | None:
+    """First phrase or #tag found as a whole word/tag (case-insensitive).
+
+    "#ad" matches "#ad" and "#AD," but not "#adventure"; "try it" doesn't match "entry item".
+    """
+    if not text:
+        return None
+    lowered = text.lower()
+    for phrase in phrases:
+        if re.search(rf"(?<![\w#]){re.escape(phrase.lower())}(?!\w)", lowered):
+            return phrase
+    return None
+
+
+AI_UNAVAILABLE = " (AI review unavailable, so this is based on automatic checks only.)"
