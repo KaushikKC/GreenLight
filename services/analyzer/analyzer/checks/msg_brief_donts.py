@@ -26,7 +26,9 @@ def check(ctx: AnalysisContext) -> CheckResult:
             title="No brief rules broken",
             explanation="Nothing in the video goes against the brief's don'ts.",
         )
-    first = min(violations, key=lambda v: v.timestamp_s if v.timestamp_s is not None else float("inf"))
+    first = min(
+        violations, key=lambda v: v.timestamp_s if v.timestamp_s is not None else float("inf")
+    )
     where = f" at {fmt_t(first.timestamp_s)}" if first.timestamp_s is not None else ""
     return CheckResult(
         id="msg.brief_donts",
