@@ -25,6 +25,11 @@ def transcribe(media: Path) -> Transcript:
             if w.word.strip()
         ]
         out.append(
-            Segment(start=round(float(seg.start), 2), end=round(float(seg.end), 2), text=seg.text.strip(), words=words)
+            Segment(
+                start=round(float(seg.start), 2),
+                end=round(float(seg.end), 2),
+                text=seg.text.strip(),
+                words=words,
+            )
         )
     return Transcript(language=info.language, segments=out)
