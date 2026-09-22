@@ -36,6 +36,14 @@ class Rules(BaseModel):
 
     hook_window_s: float
     hook_text_window_s: float
+    hook_speech_start_s: float
+    hook_strength_min: int
+
+    cta_window_s: float
+    cta_phrases: list[str]
+
+    disclosure_tags: list[str]
+    disclosure_phrases: list[str]
 
     ocr_min_confidence: float
     ocr_min_chars: int
