@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { Film, UploadCloud } from "lucide-react";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -15,7 +16,15 @@ const PLATFORM_LABELS: Record<(typeof platforms)[number], string> = {
   both: "Both",
 };
 
-type Props = { maxBytes: number; maxDurationS: number };
+export type RecheckDefaults = {
+  parentId: string;
+  platform: (typeof platforms)[number];
+  briefText: string;
+  captionText: string;
+  brandName: string;
+};
+
+type Props = { maxBytes: number; maxDurationS: number; defaults?: RecheckDefaults };
 
 type Phase =
   | { kind: "idle" }
@@ -61,10 +70,10 @@ function putWithProgress(
   });
 }
 
-export function UploadForm({ maxBytes, maxDurationS }: Props) {
+export function UploadForm({ maxBytes, maxDurationS, defaults }: Props) {
   const router = useRouter();
   const [file, setFile] = useState<File | null>(null);
-  const [platform, setPlatform] = useState<(typeof platforms)[number]>("tiktok");
+  const [platform, setPlatform] = useState<(typeof platforms)[number]>(defaults?.platform ?? "tiktok");
   const [phase, setPhase] = useState<Phase>({ kind: "idle" });
   const busy = phase.kind === "uploading" || phase.kind === "queuing";
 
@@ -110,6 +119,7 @@ export function UploadForm({ maxBytes, maxDurationS }: Props) {
           briefText: form.get("brief"),
           captionText: form.get("caption"),
           brandName: form.get("brand"),
+          parentId: defaults?.parentId,
         }),
       });
       const created = await res.json();
@@ -125,21 +135,30 @@ export function UploadForm({ maxBytes, maxDurationS }: Props) {
 
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-6">
-      <div className="flex flex-col gap-2">
-        <Label htmlFor="video">Draft video</Label>
-        <Input
+      <label
+        htmlFor="video"
+        className={`flex cursor-pointer flex-col items-center gap-2 rounded-3xl border-2 border-dashed px-4 py-8 text-center transition ${
+          file ? "border-go bg-go-soft/50" : "bg-card hover:border-ink/40"
+        }`}
+      >
+        {file ? <Film className="size-8 text-go" aria-hidden /> : <UploadCloud className="size-8" aria-hidden />}
+        <span className="font-semibold">{file ? file.name : "Choose your draft video"}</span>
+        <span className="text-xs text-muted-foreground">
+          {file
+            ? `${(file.size / 1024 / 1024).toFixed(1)} MB · tap to change`
+            : `MP4 or MOV, up to ${Math.round(maxBytes / 1024 / 1024)} MB and ${Math.round(maxDurationS / 60)} minutes`}
+        </span>
+        <input
           id="video"
           type="file"
           accept="video/mp4,video/quicktime"
           required
           disabled={busy}
           onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+          className="sr-only"
+          aria-label="Draft video"
         />
-        <p className="text-xs text-muted-foreground">
-          MP4 or MOV, up to {Math.round(maxBytes / 1024 / 1024)} MB and{" "}
-          {Math.round(maxDurationS / 60)} minutes.
-        </p>
-      </div>
+      </label>
 
       <fieldset className="flex flex-col gap-2" disabled={busy}>
         <legend className="mb-2 text-sm font-medium">Where will it run?</legend>
@@ -147,7 +166,7 @@ export function UploadForm({ maxBytes, maxDurationS }: Props) {
           {platforms.map((p) => (
             <label
               key={p}
-              className="flex h-11 cursor-pointer items-center justify-center rounded-md border text-sm has-[:checked]:border-foreground has-[:checked]:bg-foreground has-[:checked]:text-background"
+              className="flex h-12 cursor-pointer items-center justify-center rounded-2xl border bg-card text-sm font-semibold has-[:checked]:border-ink has-[:checked]:bg-ink has-[:checked]:text-paper"
             >
               <input
                 type="radio"
@@ -163,14 +182,14 @@ export function UploadForm({ maxBytes, maxDurationS }: Props) {
         </div>
       </fieldset>
 
-      <details className="rounded-md border p-4 [&_summary]:cursor-pointer">
+      <details open={Boolean(defaults)} className="rounded-2xl border bg-card p-4 [&_summary]:cursor-pointer">
         <summary className="text-sm font-medium">
           Brief, caption and brand (optional)
         </summary>
         <div className="mt-4 flex flex-col gap-4">
           <div className="flex flex-col gap-2">
             <Label htmlFor="brand">Brand name</Label>
-            <Input id="brand" name="brand" maxLength={100} disabled={busy} />
+            <Input id="brand" name="brand" maxLength={100} disabled={busy} defaultValue={defaults?.brandName} />
           </div>
           <div className="flex flex-col gap-2">
             <Label htmlFor="brief">Brand brief</Label>
@@ -181,6 +200,7 @@ export function UploadForm({ maxBytes, maxDurationS }: Props) {
               maxLength={10000}
               placeholder="Paste the talking points and dos & don'ts"
               disabled={busy}
+              defaultValue={defaults?.briefText}
             />
           </div>
           <div className="flex flex-col gap-2">
@@ -190,19 +210,21 @@ export function UploadForm({ maxBytes, maxDurationS }: Props) {
               name="caption"
               rows={3}
               maxLength={2200}
+              placeholder="Include #ad or use the paid-partnership label"
               disabled={busy}
+              defaultValue={defaults?.captionText}
             />
           </div>
         </div>
       </details>
 
       {phase.kind === "error" && (
-        <p role="alert" className="text-sm text-red-600">
+        <p role="alert" className="text-sm text-stop">
           {phase.message}
         </p>
       )}
 
-      <Button type="submit" size="lg" disabled={!file || busy} className="h-12">
+      <Button type="submit" size="lg" disabled={!file || busy} className="h-14 rounded-2xl text-base font-semibold">
         {phase.kind === "uploading"
           ? `Uploading… ${phase.pct}%`
           : phase.kind === "queuing"
