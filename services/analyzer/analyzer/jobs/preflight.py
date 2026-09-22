@@ -16,6 +16,7 @@ from psycopg.types.json import Jsonb
 
 from analyzer import storage
 from analyzer.checks import run_checks
+from analyzer.checks.base import key_text
 from analyzer.config import get_settings
 from analyzer.jobs.base import Job, PermanentJobError
 from analyzer.llm.client import LLM, LLMError
@@ -245,7 +246,15 @@ def _run(job: Job, conn: psycopg.Connection) -> None:
         "ai_review_error": llm_error,
     }
     artifacts = {
-        "frames": [{"t": f.t, "key": f.key} for f in ctx.frames or []],
+        # OCR boxes per frame power the safe-zone overlay in the report UI.
+        "frames": [
+            {
+                "t": f.t,
+                "key": f.key,
+                "ocr": [b.model_dump() for b in key_text(f.ocr, ctx.rules)],
+            }
+            for f in ctx.frames or []
+        ],
         "scene_cuts": ctx.scene_cuts,
         "audio": ctx.audio.model_dump() if ctx.audio else None,
         "transcript": ctx.transcript.model_dump() if ctx.transcript else None,
