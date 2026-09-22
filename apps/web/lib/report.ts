@@ -58,6 +58,7 @@ export function groupChecks(checks: Check[]) {
       label: GROUP_LABELS[group],
       checks: items,
       issues: items.filter(isIssue).length,
+      unchecked: items.filter((c) => c.status === "error").length,
     };
   }).filter((g) => g.checks.length > 0);
 }

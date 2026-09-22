@@ -127,3 +127,11 @@ describe("misc", () => {
     expect(formatTime(75)).toBe("1:15");
   });
 });
+
+describe("groupChecks unchecked count", () => {
+  it("counts errored checks so a group isn't shown as all good", () => {
+    const [g] = groupChecks([check("hook.text", "pass"), check("hook.spoken", "error")]);
+    expect(g.issues).toBe(0);
+    expect(g.unchecked).toBe(1);
+  });
+});

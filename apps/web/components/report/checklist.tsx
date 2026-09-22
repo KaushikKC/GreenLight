@@ -93,10 +93,18 @@ export function Checklist({ checks, onSeek }: { checks: Check[]; onSeek?: (t: nu
             <span className="flex items-center gap-2">
               <span
                 className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
-                  g.issues ? "bg-stop-soft text-stop" : "bg-go-soft text-go"
+                  g.issues
+                    ? "bg-stop-soft text-stop"
+                    : g.unchecked
+                      ? "bg-muted text-muted-foreground"
+                      : "bg-go-soft text-go"
                 }`}
               >
-                {g.issues ? `${g.issues} to fix` : "All good"}
+                {g.issues
+                  ? `${g.issues} to fix`
+                  : g.unchecked
+                    ? `${g.unchecked} not checked`
+                    : "All good"}
               </span>
               <ChevronDown className="size-4 transition group-open:rotate-180" aria-hidden />
             </span>
