@@ -4,8 +4,10 @@ version = "0.1.0"
 description = "Greenlight analysis worker: preflight, contract extraction, brand mentions."
 requires-python = ">=3.11"
 dependencies = [
+    "anthropic>=1.0",
     "boto3>=1.43.100",
     "fastapi>=0.115",
+    "faster-whisper>=1.2.1",
     "numpy>=2.4.6",
     "opencv-python-headless>=5.0.0.93",
     "psycopg[binary]>=3.2",
