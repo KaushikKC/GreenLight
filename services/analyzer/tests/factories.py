@@ -47,7 +47,9 @@ def judgements(**kw) -> PreflightJudgements:
         "hook_type": "bold_claim",
         "hook_strength": 4,
         "hook_reason": "Calls out the viewer's problem directly.",
-        "on_screen_hook": OnScreenHook(text="DRY SKIN?", reinforces_hook=True, reason="Repeats the spoken hook."),
+        "on_screen_hook": OnScreenHook(
+            text="DRY SKIN?", reinforces_hook=True, reason="Repeats the spoken hook."
+        ),
         "brief_points": [],
         "brief_violations": [],
         "cta": Cta(present=True, timestamp_s=28.0, quote="Tap the link"),
@@ -63,6 +65,9 @@ def transcript(*segments: tuple[float, float, str]) -> Transcript:
     for start, end, text in segments:
         tokens = text.split()
         step = (end - start) / max(len(tokens), 1)
-        words = [Word(start=start + i * step, end=start + (i + 1) * step, text=w) for i, w in enumerate(tokens)]
+        words = [
+            Word(start=start + i * step, end=start + (i + 1) * step, text=w)
+            for i, w in enumerate(tokens)
+        ]
         out.append(Segment(start=start, end=end, text=text, words=words))
     return Transcript(language="en", segments=out)
