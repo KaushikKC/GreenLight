@@ -7,7 +7,7 @@ from analyzer.llm.prompt_loader import load_prompt
 from analyzer.llm.types import Image, Part, Text
 from analyzer.models import AnalysisContext
 
-PROMPT_VERSION = "preflight_v1"
+PROMPT_VERSION = "preflight_v2"
 OUTPUT_NAME = "record_preflight_judgements"
 OUTPUT_DESCRIPTION = (
     "Record your assessment of the draft ad. Every judgement must cite a timestamp, "

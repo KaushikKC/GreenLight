@@ -58,3 +58,12 @@ def test_judge_without_frames_raises():
 
     with pytest.raises(LLMError, match="No frames"):
         judge(LLM(provider=FakeProvider()), ctx(), {}, brief=None, brand=None)
+
+
+def test_current_prompt_version_exists_and_is_loadable():
+    from analyzer.llm.preflight_call import PROMPT_VERSION
+    from analyzer.llm.prompt_loader import load_prompt
+
+    assert PROMPT_VERSION == "preflight_v2"
+    assert "record_preflight_judgements" in load_prompt(PROMPT_VERSION)
+    assert "separate questions" in load_prompt(PROMPT_VERSION)
