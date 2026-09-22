@@ -87,3 +87,9 @@ def test_without_llm_quotes_only_first_sentence():
     long = transcript((0.2, 5.0, "Stop scrolling. This serum changed my skin."))
     r = hook_spoken.check(ctx(transcript=long, llm=None))
     assert "“Stop scrolling.”" in r.explanation
+
+
+def test_model_reason_with_full_stop_is_not_doubled():
+    j = judgements(hook_strength=2, hook_reason="Generic greeting.")
+    r = hook_spoken.check(ctx(transcript=SPEECH, llm=j))
+    assert ".." not in r.explanation

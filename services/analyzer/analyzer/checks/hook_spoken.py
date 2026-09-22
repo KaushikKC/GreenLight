@@ -52,7 +52,8 @@ def check(ctx: AnalysisContext) -> CheckResult:
         }
         strength_ok = j.hook_type != "none" and j.hook_strength >= rules.hook_strength_min
         if not strength_ok:
-            problems.append(f"the opening line is weak ({j.hook_strength}/5): {j.hook_reason}")
+            reason = j.hook_reason.strip().rstrip(".")
+            problems.append(f"the opening line is weak ({j.hook_strength}/5): {reason}")
             fixes.append("open with a question, a bold claim or a surprising statement")
 
     if not problems:
