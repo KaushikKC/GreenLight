@@ -40,7 +40,9 @@ def check(ctx: AnalysisContext) -> CheckResult:
             severity="info",
             title=f"All {len(points)} brief points covered",
             explanation="; ".join(
-                f"“{p.point}” at {fmt_t(p.timestamp_s)}" if p.timestamp_s is not None else f"“{p.point}”"
+                f"“{p.point}” at {fmt_t(p.timestamp_s)}"
+                if p.timestamp_s is not None
+                else f"“{p.point}”"
                 for p in points
             )
             + ".",
