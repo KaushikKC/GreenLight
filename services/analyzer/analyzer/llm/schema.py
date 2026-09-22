@@ -47,3 +47,20 @@ def _clean(node: Any) -> Any:
 
 def strict_schema(model: type[BaseModel]) -> dict[str, Any]:
     return _clean(model.model_json_schema())
+
+
+def inline_refs(schema: dict[str, Any]) -> dict[str, Any]:
+    """Replace every `{"$ref": "#/$defs/X"}` with the definition itself and drop
+    `$defs`. For providers with limited JSON-schema support. Not for recursive schemas."""
+    defs = schema.get("$defs", {})
+
+    def walk(node: Any) -> Any:
+        if isinstance(node, list):
+            return [walk(n) for n in node]
+        if not isinstance(node, dict):
+            return node
+        if "$ref" in node:
+            return walk(defs[node["$ref"].rsplit("/", 1)[-1]])
+        return {k: walk(v) for k, v in node.items() if k != "$defs"}
+
+    return walk(schema)

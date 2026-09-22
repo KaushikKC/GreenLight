@@ -49,3 +49,11 @@ def test_cost_includes_cache_multipliers():
 
 def test_unknown_model_cost_is_none():
     assert cost_usd("mystery-model", 10, 10) is None
+
+
+def test_inline_refs_removes_defs_and_refs():
+    from analyzer.llm.schema import inline_refs
+
+    s = inline_refs(strict_schema(Outer))
+    assert "$defs" not in str(s) and "$ref" not in str(s)
+    assert s["properties"]["items"]["items"]["properties"]["score"]["type"] == "integer"
