@@ -1,5 +1,31 @@
 # Progress
 
+## Phase 3: Preflight UI ✅ (2026-09-23)
+
+### Done
+- **Look:** warm paper + ink palette with traffic-light signals (`go` / `wait` / `stop`) and a lime highlight; Bricolage Grotesque display type, Geist body, Geist Mono timestamps; a traffic-light wordmark. Light and dark (follows the phone setting). Built at 390px.
+- **Progress screen:** live steps from `report.progress` with a progress bar (polls every 2s).
+- **Score dial:** 0–100 ring coloured by verdict, verdict chip, "N things to fix", and "Why this score" (per-group points, hard-cap note with the uncapped score, unscored groups).
+- **Video player:** signed video URL, coloured issue markers on a timeline (tap to seek), and a **safe-zone overlay** that hatches the platform's UI regions (from `platforms.json`) and boxes on-screen text, red when it sits under the UI (same overlap maths as the analyzer).
+- **Fix list:** numbered, impact-ordered, copy one or all, timestamp chips seek the video.
+- **Checklist:** grouped Hook · Format · Readability · Message · Compliance · Audio · Technical; problems first; evidence thumbnail with the offending box, quotes, fix, "estimate" badge; groups with issues open by default.
+- **Share:** `POST /api/preflight/:id/share` creates a 24-char token; `/r/[token]` is a read-only public report (no actions, no AI setup details, `noindex`).
+- **Re-check:** "Re-check v2" → `/preflight/new?parent=…` keeps platform/brief/caption/brand; new preflight stores `parent_id`; the report shows "N issues fixed, M remaining, K new" with before → after score.
+- **Upload page:** drop-zone style picker, re-check copy, caption hint about #ad.
+- **Home:** product landing; Phase 0 queue smoke test moved to `/dev`.
+- **Data:** migration `0001` adds `preflights.parent_id` + `share_token`; worker stores per-frame OCR boxes in `artifacts.frames[].ocr`.
+- **Tests:** 27 vitest (grouping, markers, diff, overlap, etc.), 188 pytest, and a **Playwright happy path** (`make e2e`) on a production build at 390px using the installed Chrome: upload → progress → report → marker seek → overlay flags "TAP THE LINK" → share link opens read-only for a stranger (owner page 404s) → re-check v2 shows fixes; asserts no horizontal scroll.
+- ✅ Manually verified in Chrome with Gemini on: v1 49 "Not ready" → v2 97 "Ready", "5 issues fixed, 2 remaining".
+
+### Next: Phase 4 (Rights Wallet)
+
+### Known issues / decisions
+- e2e runs the worker with AI disabled (free + deterministic); AI-judged checks show "couldn't check" there.
+- e2e needs Docker infra up and port 3100 free; it builds the app each run (~15s).
+- `platforms.json` is imported into the web bundle (no disk reads), so rule edits need a web rebuild/restart.
+- Gemini calls sometimes take 40–50s under "high demand" (SDK retries 503s); progress UI covers it.
+
+
 ## Phase 2: Transcription + LLM checks ✅ (2026-09-22 → 2026-09-23)
 
 ### Done
