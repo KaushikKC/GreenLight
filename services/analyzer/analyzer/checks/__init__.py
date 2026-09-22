@@ -69,12 +69,18 @@ def run_checks(ctx: AnalysisContext, specs: list[CheckSpec] = ALL_CHECKS) -> lis
     for spec in specs:
         missing = _missing(ctx, spec.needs)
         if missing:
-            results.append(couldnt_check(spec.id, spec.group, f"The {', '.join(missing)} step failed.", spec.estimate))
+            results.append(
+                couldnt_check(
+                    spec.id, spec.group, f"The {', '.join(missing)} step failed.", spec.estimate
+                )
+            )
             continue
         try:
             result = spec.fn(ctx)
         except Exception:  # one broken check must not block the report
             log.exception("check %s crashed", spec.id)
-            result = couldnt_check(spec.id, spec.group, "Something went wrong running this check.", spec.estimate)
+            result = couldnt_check(
+                spec.id, spec.group, "Something went wrong running this check.", spec.estimate
+            )
         results.append(result.model_copy(update={"estimate": result.estimate or spec.estimate}))
     return results
