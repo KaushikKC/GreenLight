@@ -10,7 +10,10 @@
       "blur_min_detail_std",
       "lighting_min_luma",
       "music_warn_ratio",
-      "voice_band_ratio_min"
+      "voice_band_ratio_min",
+      "hook_speech_start_s",
+      "disclosure_tags",
+      "disclosure_phrases"
     ],
     "aspect_target": 0.5625,
     "aspect_tolerance": 0.02,
@@ -22,6 +25,14 @@
 
     "hook_window_s": 3.0,
     "hook_text_window_s": 2.0,
+    "hook_speech_start_s": 1.5,
+    "hook_strength_min": 3,
+
+    "cta_window_s": 5.0,
+    "cta_phrases": ["link in bio", "tap the link", "click the link", "shop now", "buy now", "use code", "use my code", "get yours", "try it", "order now", "download", "sign up", "swipe up", "check it out", "link below"],
+
+    "disclosure_tags": ["#ad", "#advert", "#advertisement", "#sponsored", "#paidpartnership", "#paidpartner", "#gifted", "#partner", "#brandpartner"],
+    "disclosure_phrases": ["paid partnership", "sponsored by", "in partnership with", "gifted by", "this is an ad", "ad for"],
 
     "ocr_min_confidence": 0.6,
     "ocr_min_chars": 3,
