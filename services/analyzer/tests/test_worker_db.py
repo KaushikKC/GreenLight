@@ -88,3 +88,32 @@ def test_stale_running_job_is_recovered(jobdb):
     queue.requeue_stale(jobdb.conn, stale_after_s=600, max_attempts=3)
     assert jobdb.get(retry_id)["status"] == "queued"
     assert jobdb.get(dead_id)["status"] == "error"
+
+
+def test_llm_calls_are_logged_with_cost(jobdb):
+    from pydantic import BaseModel
+
+    from analyzer.llm.client import LLM
+    from tests.fake_anthropic import FakeAnthropic, response, tool_use, usage
+
+    class Out(BaseModel):
+        ok: bool
+
+    job_id = jobdb.insert()
+    fake = FakeAnthropic(response(tool_use("t", {"ok": True}), u=usage(inp=1000, out=100)))
+    LLM(client=fake, conn=jobdb.conn, job_id=job_id).call_tool(
+        purpose="test_logging",
+        model="claude-sonnet-5",
+        system="s",
+        content=[{"type": "text", "text": "x"}],
+        output=Out,
+        tool_name="t",
+        tool_description="d",
+    )
+    row = jobdb.conn.execute("SELECT * FROM llm_calls WHERE job_id = %s", (job_id,)).fetchone()
+    jobdb.conn.execute("DELETE FROM llm_calls WHERE job_id = %s", (job_id,))
+    jobdb.conn.commit()
+    assert row["purpose"] == "test_logging"
+    assert (row["input_tokens"], row["output_tokens"]) == (1000, 100)
+    assert float(row["cost_usd"]) == pytest.approx(0.003)
+    assert row["latency_ms"] is not None
