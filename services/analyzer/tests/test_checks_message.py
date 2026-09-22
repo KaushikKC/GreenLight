@@ -6,7 +6,9 @@ BRIEF = "Mention the 30-day guarantee. Say it's fragrance-free. Don't mention co
 
 
 def point(p, covered, mandatory=True, t=None):
-    return BriefPoint(point=p, mandatory=mandatory, covered=covered, timestamp_s=t, quote="q" if covered else None)
+    return BriefPoint(
+        point=p, mandatory=mandatory, covered=covered, timestamp_s=t, quote="q" if covered else None
+    )
 
 
 class TestBriefPoints:
@@ -17,19 +19,31 @@ class TestBriefPoints:
         assert msg_brief_points.check(ctx(brief_text=BRIEF, llm=None)).status == "error"
 
     def test_all_covered_passes_with_timestamps(self):
-        j = judgements(brief_points=[point("30-day guarantee", True, t=8.2), point("fragrance-free", True, t=12.0)])
+        j = judgements(
+            brief_points=[
+                point("30-day guarantee", True, t=8.2),
+                point("fragrance-free", True, t=12.0),
+            ]
+        )
         r = msg_brief_points.check(ctx(brief_text=BRIEF, llm=j))
         assert r.status == "pass"
         assert "8.2s" in r.explanation
 
     def test_missing_mandatory_fails(self):
-        j = judgements(brief_points=[point("30-day guarantee", False), point("fragrance-free", True, t=12)])
+        j = judgements(
+            brief_points=[point("30-day guarantee", False), point("fragrance-free", True, t=12)]
+        )
         r = msg_brief_points.check(ctx(brief_text=BRIEF, llm=j))
         assert r.status == "fail"
         assert "30-day guarantee" in r.fix
 
     def test_missing_optional_only_warns(self):
-        j = judgements(brief_points=[point("mention the app", False, mandatory=False), point("guarantee", True, t=3)])
+        j = judgements(
+            brief_points=[
+                point("mention the app", False, mandatory=False),
+                point("guarantee", True, t=3),
+            ]
+        )
         assert msg_brief_points.check(ctx(brief_text=BRIEF, llm=j)).status == "warn"
 
 
@@ -40,8 +54,14 @@ class TestBriefDonts:
     def test_violation_fails_at_earliest(self):
         j = judgements(
             brief_violations=[
-                BriefViolation(rule="Don't mention competitors", timestamp_s=14.0, evidence="Says 'better than CeraVe'"),
-                BriefViolation(rule="No bathroom setting", timestamp_s=2.0, evidence="Filmed in a bathroom"),
+                BriefViolation(
+                    rule="Don't mention competitors",
+                    timestamp_s=14.0,
+                    evidence="Says 'better than CeraVe'",
+                ),
+                BriefViolation(
+                    rule="No bathroom setting", timestamp_s=2.0, evidence="Filmed in a bathroom"
+                ),
             ]
         )
         r = msg_brief_donts.check(ctx(brief_text=BRIEF, llm=j))
@@ -52,7 +72,12 @@ class TestBriefDonts:
 
 class TestCta:
     def test_llm_cta_at_end_passes(self):
-        r = msg_cta.check(ctx(probe=probe(duration_s=30), llm=judgements(cta=Cta(present=True, timestamp_s=27, quote="Tap the link"))))
+        r = msg_cta.check(
+            ctx(
+                probe=probe(duration_s=30),
+                llm=judgements(cta=Cta(present=True, timestamp_s=27, quote="Tap the link")),
+            )
+        )
         assert r.status == "pass"
         assert r.timestamp_s == 27
 
@@ -70,11 +95,22 @@ class TestCta:
 
     def test_on_screen_phrase_found(self):
         frames = [frame(29.0, text("SHOP NOW"))]
-        r = msg_cta.check(ctx(probe=probe(duration_s=30), frames=frames, llm=judgements(cta=Cta(present=False, timestamp_s=None, quote=None))))
+        r = msg_cta.check(
+            ctx(
+                probe=probe(duration_s=30),
+                frames=frames,
+                llm=judgements(cta=Cta(present=False, timestamp_s=None, quote=None)),
+            )
+        )
         assert r.status == "pass"
 
     def test_nothing_warns(self):
-        r = msg_cta.check(ctx(probe=probe(duration_s=30), llm=judgements(cta=Cta(present=False, timestamp_s=None, quote=None))))
+        r = msg_cta.check(
+            ctx(
+                probe=probe(duration_s=30),
+                llm=judgements(cta=Cta(present=False, timestamp_s=None, quote=None)),
+            )
+        )
         assert r.status == "warn"
         assert r.timestamp_s == 25.0
 
@@ -84,7 +120,11 @@ class TestClaims:
         assert msg_claims.check(ctx(llm=judgements())).status == "pass"
 
     def test_claims_warn_with_quote(self):
-        j = judgements(risky_claims=[RiskyClaim(quote="it cured my eczema", timestamp_s=9.0, why="Medical claim.")])
+        j = judgements(
+            risky_claims=[
+                RiskyClaim(quote="it cured my eczema", timestamp_s=9.0, why="Medical claim.")
+            ]
+        )
         r = msg_claims.check(ctx(llm=j))
         assert r.status == "warn"
         assert "cured my eczema" in r.explanation
