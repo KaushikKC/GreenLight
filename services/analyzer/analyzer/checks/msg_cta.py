@@ -10,13 +10,13 @@ def _deterministic_cta(ctx: AnalysisContext, start: float) -> tuple[float, str] 
     hits: list[tuple[float, str]] = []
     if ctx.transcript:
         for seg in ctx.transcript.segments:
-            if seg.end >= start and (p := find_phrase(seg.text, phrases)):
-                hits.append((max(seg.start, start), f"said “{seg.text}” ({p})"))
+            if seg.end >= start and find_phrase(seg.text, phrases):
+                hits.append((max(seg.start, start), f"you say “{seg.text}”"))
     for f in ctx.frames or []:
         if f.t >= start:
             text = " ".join(b.text for b in key_text(f.ocr, ctx.rules))
-            if p := find_phrase(text, phrases):
-                hits.append((f.t, f"on screen “{text}” ({p})"))
+            if find_phrase(text, phrases):
+                hits.append((f.t, f"on-screen text reads “{text}”"))
     return max(hits) if hits else None
 
 
@@ -51,7 +51,7 @@ def check(ctx: AnalysisContext) -> CheckResult:
             status="pass",
             severity="info",
             title="Call to action at the end",
-            explanation=f"At {fmt_t(t)} you {what}." + ("" if ctx.llm else AI_UNAVAILABLE),
+            explanation=f"At {fmt_t(t)}, {what}." + ("" if ctx.llm else AI_UNAVAILABLE),
             timestamp_s=t,
             evidence=evidence | {"match": what},
         )
