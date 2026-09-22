@@ -14,10 +14,14 @@ HookType = Literal["question", "bold_claim", "pattern_interrupt", "story", "none
 
 class BriefPoint(BaseModel):
     point: str = Field(description="The talking point, as written in the brief.")
-    mandatory: bool = Field(description="(+) True unless the brief marks it optional / nice-to-have.")
+    mandatory: bool = Field(
+        description="(+) True unless the brief marks it optional / nice-to-have."
+    )
     covered: bool
     timestamp_s: float | None = Field(description="Where it's covered; null if not covered.")
-    quote: str | None = Field(description="Words spoken or shown that cover it; null if not covered.")
+    quote: str | None = Field(
+        description="Words spoken or shown that cover it; null if not covered."
+    )
 
 
 class BriefViolation(BaseModel):
@@ -58,9 +62,13 @@ class PreflightJudgements(BaseModel):
         description="Earliest frame timestamp where the product or brand is visible; null if never."
     )
     product_visibility_evidence: str
-    opening_line: str | None = Field(description="First spoken sentence, verbatim; null if no speech.")
+    opening_line: str | None = Field(
+        description="First spoken sentence, verbatim; null if no speech."
+    )
     hook_type: HookType
-    hook_strength: int = Field(ge=1, le=5, description="1 = no hook, 5 = impossible to scroll past.")
+    hook_strength: int = Field(
+        ge=1, le=5, description="1 = no hook, 5 = impossible to scroll past."
+    )
     hook_reason: str
     on_screen_hook: OnScreenHook
     brief_points: list[BriefPoint] = Field(description="Empty if no brief was provided.")
