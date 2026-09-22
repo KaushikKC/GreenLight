@@ -18,20 +18,38 @@ def check(ctx: AnalysisContext) -> CheckResult:
     for f in ctx.frames or []:
         text = " ".join(b.text for b in key_text(f.ocr, rules))
         if tag := find_phrase(text, everything):
-            found.append({"where": "on_screen", "match": tag, "timestamp_s": f.t, "frame_key": f.key})
+            found.append(
+                {"where": "on_screen", "match": tag, "timestamp_s": f.t, "frame_key": f.key}
+            )
             break
     if ctx.transcript:
         for seg in ctx.transcript.segments:
             if phrase := find_phrase(seg.text, rules.disclosure_phrases):
-                found.append({"where": "spoken", "match": phrase, "timestamp_s": seg.start, "quote": seg.text})
+                found.append(
+                    {
+                        "where": "spoken",
+                        "match": phrase,
+                        "timestamp_s": seg.start,
+                        "quote": seg.text,
+                    }
+                )
                 break
     spoken = ctx.llm.spoken_disclosure if ctx.llm else None
     if spoken and spoken.present and not any(f["where"] == "spoken" for f in found):
-        found.append({"where": "spoken", "match": spoken.quote, "timestamp_s": spoken.timestamp_s, "quote": spoken.quote})
+        found.append(
+            {
+                "where": "spoken",
+                "match": spoken.quote,
+                "timestamp_s": spoken.timestamp_s,
+                "quote": spoken.quote,
+            }
+        )
 
     if found:
         first = found[0]
-        where = {"caption": "your caption", "on_screen": "on screen", "spoken": "out loud"}[first["where"]]
+        where = {"caption": "your caption", "on_screen": "on screen", "spoken": "out loud"}[
+            first["where"]
+        ]
         at = f" at {fmt_t(first['timestamp_s'])}" if first.get("timestamp_s") is not None else ""
         return CheckResult(
             id="comp.disclosure",
