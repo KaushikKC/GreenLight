@@ -96,7 +96,7 @@ def test_pipeline_checks_on_clip(clip, monkeypatch):
     monkeypatch.setattr(preflight.storage, "upload_bytes", lambda key, data, ct: key)
     meta = probe(clip)
     ctx = AnalysisContext(rules=load_rules("tiktok"), probe=meta)
-    ctx.frames, ctx.scene_cuts, images = preflight._sample_frames(clip, meta.duration_s, "test")
+    ctx.frames, ctx.scene_cuts, images, _ = preflight._sample_frames(clip, meta.duration_s, "test")
     for f, img in zip(ctx.frames, images, strict=True):
         f.ocr = read_text(img)
         f.ocr_ok = True
