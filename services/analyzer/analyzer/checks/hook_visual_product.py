@@ -6,7 +6,10 @@ from analyzer.models import AnalysisContext, CheckResult
 
 def check(ctx: AnalysisContext) -> CheckResult:
     j, window = ctx.llm, ctx.rules.hook_window_s
-    evidence = {"evidence": j.product_visibility_evidence, "first_visible_s": j.product_first_visible_s}
+    evidence = {
+        "evidence": j.product_visibility_evidence,
+        "first_visible_s": j.product_first_visible_s,
+    }
     if not j.product_identified:
         return CheckResult(
             id="hook.visual_product",
