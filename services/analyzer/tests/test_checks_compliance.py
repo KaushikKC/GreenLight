@@ -31,7 +31,11 @@ class TestDisclosure:
         assert comp_disclosure.check(ctx(caption_text="hi", transcript=t)).status == "pass"
 
     def test_llm_spoken_disclosure_passes(self):
-        j = judgements(spoken_disclosure=SpokenDisclosure(present=True, timestamp_s=1.0, quote="they sent me this"))
+        j = judgements(
+            spoken_disclosure=SpokenDisclosure(
+                present=True, timestamp_s=1.0, quote="they sent me this"
+            )
+        )
         assert comp_disclosure.check(ctx(caption_text="hi", llm=j)).status == "pass"
 
     def test_caption_without_disclosure_fails(self):
