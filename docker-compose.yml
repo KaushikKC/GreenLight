@@ -54,6 +54,9 @@ services:
     environment:
       DATABASE_URL: postgres://greenlight:greenlight@postgres:5432/greenlight
       S3_ENDPOINT: http://minio:9000
+    volumes:
+      # faster-whisper downloads its model on first use; keep it between runs.
+      - whisper-cache:/root/.cache/huggingface
     depends_on:
       postgres:
         condition: service_healthy
@@ -63,3 +66,4 @@ services:
 volumes:
   pgdata:
   miniodata:
+  whisper-cache:
