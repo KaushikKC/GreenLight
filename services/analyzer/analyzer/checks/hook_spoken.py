@@ -37,7 +37,11 @@ def check(ctx: AnalysisContext) -> CheckResult:
     evidence = {"first_word_s": first, "opening_line": opening}
     strength_ok = True
     if j is not None:
-        evidence |= {"hook_type": j.hook_type, "hook_strength": j.hook_strength, "reason": j.hook_reason}
+        evidence |= {
+            "hook_type": j.hook_type,
+            "hook_strength": j.hook_strength,
+            "reason": j.hook_reason,
+        }
         strength_ok = j.hook_type != "none" and j.hook_strength >= rules.hook_strength_min
         if not strength_ok:
             problems.append(f"the opening line is weak ({j.hook_strength}/5): {j.hook_reason}")
@@ -65,7 +69,10 @@ def check(ctx: AnalysisContext) -> CheckResult:
         status=status,
         severity="high" if status == "fail" else "medium",
         title="Spoken hook needs work",
-        explanation=f"Opening line “{opening}”: " + "; ".join(problems) + "." + ("" if j else AI_UNAVAILABLE),
+        explanation=f"Opening line “{opening}”: "
+        + "; ".join(problems)
+        + "."
+        + ("" if j else AI_UNAVAILABLE),
         fix=fix[:1].upper() + fix[1:] + ".",
         timestamp_s=first,
         evidence=evidence,
