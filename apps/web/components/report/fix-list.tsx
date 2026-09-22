@@ -1,0 +1,85 @@
+"use client";
+
+import { Check, Clock, Copy } from "lucide-react";
+import { useState } from "react";
+
+import { formatTime } from "@/lib/report";
+import type { FixItem } from "@/lib/report-types";
+
+async function copy(text: string) {
+  try {
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export function FixList({ items, onSeek }: { items: FixItem[]; onSeek?: (t: number) => void }) {
+  const [copied, setCopied] = useState<number | "all" | null>(null);
+  if (items.length === 0) return null;
+
+  async function copyItem(key: number | "all", text: string) {
+    if (await copy(text)) {
+      setCopied(key);
+      setTimeout(() => setCopied(null), 1500);
+    }
+  }
+
+  const all = items
+    .map((i) => `${i.n}. ${i.fix}${i.timestamp_s !== null ? ` (at ${formatTime(i.timestamp_s)})` : ""}`)
+    .join("\n");
+
+  return (
+    <section className="rounded-3xl border bg-card p-5" aria-labelledby="fix-heading" data-testid="fix-list">
+      <div className="flex items-center justify-between gap-3">
+        <h2 id="fix-heading" className="text-xl font-semibold">
+          Fix list
+        </h2>
+        <button
+          type="button"
+          onClick={() => copyItem("all", all)}
+          className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium"
+        >
+          {copied === "all" ? <Check className="size-4 text-go" /> : <Copy className="size-4" />}
+          {copied === "all" ? "Copied" : "Copy all"}
+        </button>
+      </div>
+      <p className="mt-1 text-sm text-muted-foreground">Most impactful first.</p>
+      <ol className="mt-4 flex flex-col gap-3">
+        {items.map((i) => (
+          <li key={i.n} className="flex items-start gap-3" data-testid="fix-item">
+            <span
+              className={`flex size-7 shrink-0 items-center justify-center rounded-full font-mono text-sm font-semibold ${
+                i.status === "fail" ? "bg-stop text-paper" : "bg-wait text-ink"
+              }`}
+            >
+              {i.n}
+            </span>
+            <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+              <p className="text-[15px] leading-snug">{i.fix}</p>
+              {i.timestamp_s !== null && onSeek && (
+                <button
+                  type="button"
+                  onClick={() => onSeek(i.timestamp_s!)}
+                  className="inline-flex w-fit items-center gap-1 rounded-full bg-muted px-2 py-0.5 font-mono text-xs"
+                >
+                  <Clock className="size-3" aria-hidden />
+                  {formatTime(i.timestamp_s)}
+                </button>
+              )}
+            </div>
+            <button
+              type="button"
+              onClick={() => copyItem(i.n, i.fix)}
+              className="rounded-full p-1.5 text-muted-foreground hover:bg-muted"
+              aria-label={`Copy fix ${i.n}`}
+            >
+              {copied === i.n ? <Check className="size-4 text-go" /> : <Copy className="size-4" />}
+            </button>
+          </li>
+        ))}
+      </ol>
+    </section>
+  );
+}
