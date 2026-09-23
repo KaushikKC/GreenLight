@@ -9,6 +9,7 @@ import {
   pgEnum,
   pgTable,
   real,
+  uniqueIndex,
   text,
   timestamp,
   uuid,
@@ -27,6 +28,12 @@ export const users = pgTable("users", {
   email: text("email").unique(),
   name: text("name"),
   isGuest: boolean("is_guest").notNull().default(false),
+  // Creator profile, used when drafting pitches. Followers only appear in a
+  // pitch if the creator entered them here.
+  handle: text("handle"),
+  niche: text("niche"),
+  audience: text("audience"),
+  followers: integer("followers"),
   createdAt: createdAt(),
 });
 
@@ -221,19 +228,30 @@ export const postSource = pgEnum("post_source", [
   "upload",
 ]);
 
-export const posts = pgTable("posts", {
-  id: id(),
-  userId: uuid("user_id")
-    .notNull()
-    .references(() => users.id, { onDelete: "cascade" }),
-  platform: text("platform"),
-  url: text("url"),
-  postedAt: timestamp("posted_at", { withTimezone: true }),
-  caption: text("caption"),
-  transcript: text("transcript"),
-  ocrText: text("ocr_text"),
-  source: postSource("source").notNull(),
-});
+export const posts = pgTable(
+  "posts",
+  {
+    id: id(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    platform: text("platform"),
+    url: text("url"),
+    postedAt: timestamp("posted_at", { withTimezone: true }),
+    caption: text("caption"),
+    transcript: text("transcript"),
+    ocrText: text("ocr_text"),
+    source: postSource("source").notNull(),
+    /** Set once the brand scan has read this post. */
+    scannedAt: timestamp("scanned_at", { withTimezone: true }),
+    createdAt: createdAt(),
+  },
+  (t) => [
+    uniqueIndex("posts_user_url_idx")
+      .on(t.userId, t.url)
+      .where(sql`${t.url} is not null`),
+  ],
+);
 
 export const mentionModality = pgEnum("mention_modality", [
   "spoken",
@@ -262,14 +280,23 @@ export const brandMentions = pgTable(
   (t) => [index("brand_mentions_canonical_idx").on(t.brandCanonical)],
 );
 
+export const pitchAsk = pgEnum("pitch_ask", ["gifting", "paid", "affiliate"]);
+
 export const pitches = pgTable("pitches", {
   id: id(),
   userId: uuid("user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
   brandCanonical: text("brand_canonical").notNull(),
-  subject: text("subject").notNull(),
-  body: text("body").notNull(),
+  status: jobStatus("status").notNull().default("queued"),
+  ask: pitchAsk("ask"),
+  /** Anything extra the creator wants mentioned. */
+  note: text("note"),
+  subject: text("subject"),
+  body: text("body"),
+  /** [{ text, post_ids }]: which posts back each claim in the body. */
+  claims: jsonb("claims"),
+  error: text("error"),
   evidencePostIds: uuid("evidence_post_ids").array().notNull().default(sql`'{}'`),
   createdAt: createdAt(),
 });
