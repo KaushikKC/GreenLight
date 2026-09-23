@@ -58,7 +58,7 @@ export function SourcePanel({
               {text.slice(0, hit.start)}
               <mark
                 ref={markRef}
-                className="rounded bg-highlight px-0.5 text-ink"
+                className="rounded bg-highlight px-0.5 text-on-color"
                 data-testid="quote-highlight"
               >
                 {text.slice(hit.start, hit.end)}

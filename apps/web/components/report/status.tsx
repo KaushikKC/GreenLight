@@ -47,7 +47,7 @@ export function EstimateBadge() {
 
 export const VERDICT_STYLES: Record<Verdict, { chip: string; ring: string }> = {
   ready: { chip: "bg-go text-paper", ring: "stroke-go" },
-  fix_first: { chip: "bg-wait text-ink", ring: "stroke-wait" },
+  fix_first: { chip: "bg-wait text-on-color", ring: "stroke-wait" },
   not_ready: { chip: "bg-stop text-paper", ring: "stroke-stop" },
 };
 

@@ -51,7 +51,7 @@ export function FixList({ items, onSeek }: { items: FixItem[]; onSeek?: (t: numb
           <li key={i.n} className="flex items-start gap-3" data-testid="fix-item">
             <span
               className={`flex size-7 shrink-0 items-center justify-center rounded-full font-mono text-sm font-semibold ${
-                i.status === "fail" ? "bg-stop text-paper" : "bg-wait text-ink"
+                i.status === "fail" ? "bg-stop text-paper" : "bg-wait text-on-color"
               }`}
             >
               {i.n}
