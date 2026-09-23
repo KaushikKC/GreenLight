@@ -52,6 +52,9 @@ const FOREVER = "9999-12-31";
 const toMs = (iso: string) => Date.parse(`${iso}T00:00:00Z`);
 export const toIso = (ms: number) => new Date(ms).toISOString().slice(0, 10);
 
+/** Today's date (UTC) for request-time use. */
+export const todayIso = () => toIso(Date.now());
+
 export function daysBetween(from: string, to: string): number {
   return Math.round((toMs(to) - toMs(from)) / DAY_MS);
 }

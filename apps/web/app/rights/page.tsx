@@ -7,7 +7,7 @@ import { DealChecker } from "@/components/rights/deal-checker";
 import { DealsList } from "@/components/rights/deals-list";
 import { RightsTimeline } from "@/components/rights/timeline";
 import { loadWallet } from "@/lib/contracts";
-import { buildAlerts, toIso } from "@/lib/rights";
+import { buildAlerts, todayIso } from "@/lib/rights";
 import { ALERT_CONFIG } from "@/lib/rights-config";
 import { getUserId } from "@/lib/session";
 import { buildTimeline } from "@/lib/timeline";
@@ -24,7 +24,7 @@ const PENDING_LABEL = {
 export default async function WalletPage() {
   const userId = await getUserId();
   const wallet = userId ? await loadWallet(userId) : { deals: [], windows: [], pending: [] };
-  const today = toIso(Date.now());
+  const today = todayIso();
   const alerts = buildAlerts(wallet.deals, wallet.windows, today, ALERT_CONFIG);
   const timeline = buildTimeline(wallet.deals, wallet.windows, today);
   const empty = wallet.deals.length === 0;
