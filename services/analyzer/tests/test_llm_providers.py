@@ -255,7 +255,7 @@ class TestGeminiFallbacks:
         assert r.model == "b" and r.output == {"inner": {"x": 1}}
 
     def test_overloaded_and_missing_models_fall_back_too(self):
-        fake, p = self.provider(
+        _, p = self.provider(
             errors.ServerError(503, {"error": {"message": "busy", "status": "UNAVAILABLE"}}),
             errors.ClientError(404, {"error": {"message": "gone", "status": "NOT_FOUND"}}),
             genai_response("{}"),

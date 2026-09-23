@@ -159,7 +159,10 @@ class GeminiProvider:
         except json.JSONDecodeError:
             parsed = None
         return Reply(
-            output=parsed if isinstance(parsed, dict) else None, raw_text=text, usage=usage
+            output=parsed if isinstance(parsed, dict) else None,
+            raw_text=text,
+            usage=usage,
+            model=used,
         )
 
     def cost_usd(self, model: str, usage: Usage) -> float | None:
