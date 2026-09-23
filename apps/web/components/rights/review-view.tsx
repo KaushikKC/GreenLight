@@ -26,10 +26,17 @@ export function ReviewView({ initial }: { initial: ContractDto }) {
     return () => clearTimeout(timer);
   }, [c]);
 
-  const showQuote = useCallback((q: string) => {
-    setQuote(q);
-    setTab("contract");
-  }, []);
+  const showQuote = useCallback(
+    (q: string) => {
+      setQuote(q);
+      if (tab === "terms") {
+        setTab("contract");
+        // Phone layout: jump up so the highlighted contract is in view.
+        window.scrollTo({ top: 0 });
+      }
+    },
+    [tab],
+  );
 
   if (c.status === "extracting") {
     return (
