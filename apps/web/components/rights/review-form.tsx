@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { CATEGORIES } from "@/lib/rights-config";
 import { type Draft, type ExtractedTerms, initialReview, toConfirmBody, windowsNeedingDates } from "@/lib/review";
+import { formatDate } from "@/lib/rights";
 
 import { DateInput, Field, QuoteButton } from "./fields";
 import { WindowEditor } from "./window-editor";
@@ -158,7 +159,7 @@ export function ReviewForm({
                 <span>
                   {x.count ?? 1}× {x.platform ?? "post"} {x.format ?? ""}
                 </span>
-                <span className="font-mono text-xs text-muted-foreground">{x.dueDate ?? "no date"}</span>
+                <span className="text-xs text-muted-foreground">{x.dueDate ? formatDate(x.dueDate) : "no date"}</span>
               </li>
             ))}
           </ul>

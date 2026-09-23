@@ -1,4 +1,4 @@
-import type { WindowKind } from "@/lib/rights";
+import { formatDate, type WindowKind } from "@/lib/rights";
 import type { Timeline } from "@/lib/timeline";
 
 const BAR: Record<WindowKind, string> = {
@@ -16,7 +16,7 @@ const LABEL: Record<WindowKind, string> = {
 function describe(b: Timeline["rows"][number]["bars"][number]) {
   const w = b.window;
   const kind = w.kind === "usage" && w.scope ? `${LABEL[w.kind]} (${w.scope})` : LABEL[w.kind];
-  return `${kind}: ${w.startsAt} → ${w.perpetual ? "forever" : w.endsAt}`;
+  return `${kind}: ${formatDate(w.startsAt)} → ${w.perpetual ? "forever" : formatDate(w.endsAt)}`;
 }
 
 export function RightsTimeline({ timeline }: { timeline: Timeline }) {

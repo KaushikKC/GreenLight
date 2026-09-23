@@ -4,7 +4,7 @@ import { CircleCheck, OctagonAlert } from "lucide-react";
 import { useState } from "react";
 
 import { Input } from "@/components/ui/input";
-import { type Conflict, exclusivityConflicts, type RightsWindow } from "@/lib/rights";
+import { type Conflict, exclusivityConflicts, formatDate, type RightsWindow } from "@/lib/rights";
 import { CATEGORIES, CATEGORY_LABELS } from "@/lib/rights-config";
 
 type Result = { conflicts: Conflict[]; brand: string; category: string } | null;
@@ -79,8 +79,8 @@ export function DealChecker({ windows, today }: { windows: RightsWindow[]; today
                 <li key={c.window.id} className="rounded-2xl bg-stop-soft px-4 py-3 text-sm">
                   <p className="flex items-start gap-2 font-semibold">
                     <OctagonAlert className="mt-0.5 size-4 shrink-0 text-stop" aria-hidden />
-                    Clashes with your {c.window.brand} exclusivity ({CATEGORY_LABELS[c.window.category ?? ""] ?? c.window.category}) from {c.from}
-                    {c.to ? ` to ${c.to}` : " onwards"}.
+                    Clashes with your {c.window.brand} exclusivity ({CATEGORY_LABELS[c.window.category ?? ""] ?? c.window.category}) from {formatDate(c.from)}
+                    {c.to ? ` to ${formatDate(c.to)}` : " onwards"}.
                   </p>
                   {c.window.sourceQuote && (
                     <blockquote className="mt-2 border-l-2 border-stop/40 pl-3 text-muted-foreground italic">

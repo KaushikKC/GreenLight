@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import type { WalletDeal } from "@/lib/contracts";
-import { formatMoney, type RightsWindow } from "@/lib/rights";
+import { formatDate, formatMoney, type RightsWindow } from "@/lib/rights";
 import { CATEGORY_LABELS } from "@/lib/rights-config";
 
 const KIND = { usage: "Usage", whitelisting: "Whitelisting", exclusivity: "Exclusivity" } as const;
@@ -25,7 +25,7 @@ export function DealsList({ deals, windows }: { deals: WalletDeal[]; windows: Ri
               <div className="text-right">
                 <p className="font-semibold">{formatMoney(d.feeAmount, d.feeCurrency) || "No fee"}</p>
                 <p className={`text-xs ${d.paid ? "text-go" : "text-muted-foreground"}`}>
-                  {d.paid ? "Paid" : d.paymentDueAt ? `Due ${d.paymentDueAt}` : "Unpaid"}
+                  {d.paid ? "Paid" : d.paymentDueAt ? `Due ${formatDate(d.paymentDueAt)}` : "Unpaid"}
                 </p>
               </div>
             </div>
@@ -35,7 +35,7 @@ export function DealsList({ deals, windows }: { deals: WalletDeal[]; windows: Ri
                 .map((w) => (
                   <li key={w.id} className="rounded-full bg-muted px-2 py-0.5">
                     {KIND[w.kind]}
-                    {w.scope ? ` (${w.scope})` : ""}: {w.perpetual ? "forever" : `until ${w.endsAt}`}
+                    {w.scope ? ` (${w.scope})` : ""}: {w.perpetual ? "forever" : `until ${formatDate(w.endsAt)}`}
                   </li>
                 ))}
             </ul>
