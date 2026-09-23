@@ -1,4 +1,4 @@
-import { ArrowRight, Clock, Link2, ScanLine } from "lucide-react";
+import { ArrowRight, Clock, Link2, ScanLine, Wallet } from "lucide-react";
 import Link from "next/link";
 
 import { SiteHeader } from "@/components/site-header";
@@ -27,6 +27,12 @@ export default function Home() {
             className="mt-2 inline-flex h-14 items-center justify-center gap-2 rounded-2xl bg-ink text-lg font-semibold text-paper"
           >
             Check a draft <ArrowRight className="size-5" />
+          </Link>
+          <Link
+            href="/rights"
+            className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl border bg-card font-semibold"
+          >
+            <Wallet className="size-4" /> Rights Wallet
           </Link>
         </section>
         <ul className="flex flex-col gap-3">
