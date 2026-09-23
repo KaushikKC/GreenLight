@@ -1,6 +1,6 @@
 "use client";
 
-import { CircleAlert, Sparkles } from "lucide-react";
+import { CircleAlert, Clock, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 
@@ -88,6 +88,16 @@ export function ReportView({ initial, readOnly = false }: { initial: PreflightDt
             AI review wasn&apos;t available for this report
             {readOnly ? "." : ` (${meta.ai_review_error.replace(/\.$/, "")}).`} Hook, brief and
             claims checks are marked &ldquo;couldn&apos;t check&rdquo;.
+          </span>
+        </p>
+      )}
+
+      {data.mediaDeleted && (
+        <p className="flex items-start gap-2 rounded-2xl bg-muted px-4 py-3 text-sm" data-testid="media-deleted">
+          <Clock className="mt-0.5 size-4 shrink-0" aria-hidden />
+          <span>
+            For your privacy, the video and its frames were deleted 7 days after upload. The report is
+            still here.
           </span>
         </p>
       )}
