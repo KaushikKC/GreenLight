@@ -70,7 +70,9 @@ def derive_red_flags(t: ContractTerms, rules: dict = _RULES) -> list[RedFlag]:
         found.append(
             RedFlag(
                 type="unlimited_revisions",
-                quote=t.revision_rounds.source_quote or t.revision_rounds.value or "unlimited revisions",
+                quote=t.revision_rounds.source_quote
+                or t.revision_rounds.value
+                or "unlimited revisions",
                 why="No cap on revision rounds means unpaid extra work; 1 or 2 rounds is typical.",
             )
         )
