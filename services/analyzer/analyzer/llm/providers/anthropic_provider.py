@@ -10,7 +10,7 @@ from typing import Any
 
 import anthropic
 
-from analyzer.llm.errors import LLMError
+from analyzer.llm.errors import LLMError, LLMRateLimited
 from analyzer.llm.pricing import cost_usd
 from analyzer.llm.types import Document, Part, Reply, Text, Turn, Usage
 
@@ -65,6 +65,12 @@ class AnthropicProvider:
         except anthropic.AuthenticationError as e:
             raise LLMError(
                 "AI review isn't configured (the Anthropic API key was rejected)."
+            ) from e
+        except anthropic.RateLimitError as e:
+            retry_after = e.response.headers.get("retry-after") if e.response is not None else None
+            raise LLMRateLimited(
+                "Anthropic rate limit reached. Try again shortly.",
+                retry_after_s=float(retry_after) if retry_after and retry_after.isdigit() else 60.0,
             ) from e
         except anthropic.NotFoundError as e:
             raise LLMError(f"AI model {model!r} isn't available.") from e

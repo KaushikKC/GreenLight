@@ -6,11 +6,12 @@ $refs inlined; Pydantic still validates the result in the caller.
 
 import json
 import logging
+import re
 from typing import Any
 
 from google.genai import errors, types
 
-from analyzer.llm.errors import LLMError
+from analyzer.llm.errors import LLMError, LLMRateLimited
 from analyzer.llm.schema import inline_refs
 from analyzer.llm.types import Part, Reply, Text, Turn, Usage
 
@@ -30,6 +31,12 @@ def _part(part: Part) -> types.Part:
     if isinstance(part, Text):
         return types.Part.from_text(text=part.text)
     return types.Part.from_bytes(data=part.data, mime_type=part.media_type)
+
+
+def _retry_delay_s(e: errors.ClientError, default: float = 60.0) -> float:
+    """Google puts the suggested wait in the error details, e.g. retryDelay '37s'."""
+    match = re.search(r"retryDelay['\"]?\s*:\s*['\"](\d+(?:\.\d+)?)s", str(e))
+    return float(match.group(1)) if match else default
 
 
 def _is_refusal(resp: Any) -> bool:
@@ -82,7 +89,10 @@ class GeminiProvider:
             )
         except errors.ClientError as e:
             if e.code == 429:
-                raise LLMError("Gemini free-tier rate limit reached. Try again in a minute.") from e
+                raise LLMRateLimited(
+                    "Gemini free-tier rate limit reached. Try again in a minute.",
+                    retry_after_s=_retry_delay_s(e),
+                ) from e
             if e.code == 404:
                 raise LLMError(f"AI model {model!r} isn't available.") from e
             if e.code in (400, 401, 403) and "key" in str(e).lower():

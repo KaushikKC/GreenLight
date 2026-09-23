@@ -121,12 +121,31 @@ class TestGemini:
     def test_safety_finish_is_refusal(self):
         assert gen(GeminiProvider(FakeGenai(genai_response("", finish="SAFETY")))).refused
 
-    def test_rate_limit_message(self):
+    def test_rate_limit_carries_googles_retry_delay(self):
+        from analyzer.llm.errors import LLMRateLimited
+
+        body = {
+            "error": {
+                "message": "quota",
+                "status": "RESOURCE_EXHAUSTED",
+                "details": [
+                    {"@type": "type.googleapis.com/google.rpc.RetryInfo", "retryDelay": "37s"}
+                ],
+            }
+        }
+        with pytest.raises(LLMRateLimited, match="rate limit") as exc:
+            gen(GeminiProvider(FakeGenai(errors.ClientError(429, body))))
+        assert exc.value.retry_after_s == 37.0
+
+    def test_rate_limit_without_delay_defaults_to_a_minute(self):
+        from analyzer.llm.errors import LLMRateLimited
+
         err = errors.ClientError(
             429, {"error": {"message": "quota", "status": "RESOURCE_EXHAUSTED"}}
         )
-        with pytest.raises(LLMError, match="rate limit"):
+        with pytest.raises(LLMRateLimited) as exc:
             gen(GeminiProvider(FakeGenai(err)))
+        assert exc.value.retry_after_s == 60.0
 
     def test_bad_key_message(self):
         err = errors.ClientError(
