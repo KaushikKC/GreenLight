@@ -112,6 +112,8 @@ export const videos = pgTable("videos", {
   deleteAfter: timestamp("delete_after", { withTimezone: true })
     .notNull()
     .default(sql`now() + interval '7 days'`),
+  /** Set when the worker has removed the video and its frames from storage. */
+  deletedAt: timestamp("deleted_at", { withTimezone: true }),
 });
 
 export const platform = pgEnum("platform", ["tiktok", "reels", "both"]);
