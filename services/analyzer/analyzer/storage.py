@@ -32,3 +32,20 @@ def upload_bytes(key: str, data: bytes, content_type: str) -> str:
         Bucket=get_settings().s3_bucket, Key=key, Body=data, ContentType=content_type
     )
     return key
+
+
+def delete(key: str) -> None:
+    client().delete_object(Bucket=get_settings().s3_bucket, Key=key)
+
+
+def delete_prefix(prefix: str) -> int:
+    """Delete every object under `prefix`. Returns how many were removed."""
+    bucket = get_settings().s3_bucket
+    removed = 0
+    paginator = client().get_paginator("list_objects_v2")
+    for page in paginator.paginate(Bucket=bucket, Prefix=prefix):
+        keys = [{"Key": o["Key"]} for o in page.get("Contents", [])]
+        if keys:
+            client().delete_objects(Bucket=bucket, Delete={"Objects": keys, "Quiet": True})
+            removed += len(keys)
+    return removed
