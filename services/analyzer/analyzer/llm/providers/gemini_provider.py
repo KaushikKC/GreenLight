@@ -12,7 +12,7 @@ from google.genai import errors, types
 
 from analyzer.llm.errors import LLMError
 from analyzer.llm.schema import inline_refs
-from analyzer.llm.types import Image, Reply, Text, Turn, Usage
+from analyzer.llm.types import Part, Reply, Text, Turn, Usage
 
 log = logging.getLogger(__name__)
 
@@ -26,7 +26,7 @@ BLOCKED_FINISH = {
 }
 
 
-def _part(part: Text | Image) -> types.Part:
+def _part(part: Part) -> types.Part:
     if isinstance(part, Text):
         return types.Part.from_text(text=part.text)
     return types.Part.from_bytes(data=part.data, mime_type=part.media_type)

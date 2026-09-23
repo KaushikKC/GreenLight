@@ -145,3 +145,17 @@ class TestGemini:
 
         assert GeminiProvider(None, free_tier=True).cost_usd("gemini-x", Usage(10, 10)) == 0.0
         assert GeminiProvider(None, free_tier=False).cost_usd("gemini-x", Usage(10, 10)) is None
+
+
+def test_documents_are_sent_natively():
+    from analyzer.llm.types import Document
+
+    turns = [Turn("user", [Document(b"%PDF-1.4", "application/pdf"), Text("extract")])]
+    fake_a = FakeAnthropic(response(tool_use("rec", {"inner": {"x": 1}})))
+    AnthropicProvider(fake_a).generate(model="m", system="s", turns=turns, schema=SCHEMA, name="rec", description="d", max_tokens=10)
+    block = fake_a.requests[0]["messages"][0]["content"][0]
+    assert block["type"] == "document" and block["source"]["media_type"] == "application/pdf"
+
+    fake_g = FakeGenai(genai_response('{"inner": {"x": 1}}'))
+    GeminiProvider(fake_g).generate(model="m", system="s", turns=turns, schema=SCHEMA, name="rec", description="d", max_tokens=10)
+    assert fake_g.requests[0]["contents"][0].parts[0].inline_data.mime_type == "application/pdf"

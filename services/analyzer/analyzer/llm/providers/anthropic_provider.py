@@ -12,14 +12,14 @@ import anthropic
 
 from analyzer.llm.errors import LLMError
 from analyzer.llm.pricing import cost_usd
-from analyzer.llm.types import Image, Reply, Text, Turn, Usage
+from analyzer.llm.types import Document, Image, Part, Reply, Text, Turn, Usage
 
 
-def _block(part: Text | Image) -> dict[str, Any]:
+def _block(part: Part) -> dict[str, Any]:
     if isinstance(part, Text):
         return {"type": "text", "text": part.text}
     return {
-        "type": "image",
+        "type": "document" if isinstance(part, Document) else "image",
         "source": {
             "type": "base64",
             "media_type": part.media_type,

@@ -15,7 +15,15 @@ class Image:
     media_type: str = "image/jpeg"
 
 
-Part = Text | Image
+@dataclass(frozen=True)
+class Document:
+    """A whole file for the model to read, e.g. a scanned PDF contract."""
+
+    data: bytes
+    media_type: str = "application/pdf"
+
+
+Part = Text | Image | Document
 
 
 @dataclass
