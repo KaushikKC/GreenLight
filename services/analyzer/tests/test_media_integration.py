@@ -9,11 +9,11 @@ import numpy as np
 import pytest
 
 from analyzer.checks import run_checks
-from analyzer.jobs import preflight
 from analyzer.media import audio, frames
 from analyzer.media.ocr import read_text
 from analyzer.media.probe import probe
 from analyzer.models import AnalysisContext
+from analyzer.preflight_pipeline import analyze_video, sample_frames
 from analyzer.rules import load_rules
 
 pytestmark = pytest.mark.skipif(shutil.which("ffmpeg") is None, reason="ffmpeg not installed")
@@ -91,12 +91,13 @@ def test_audio_analysis_measures_tone(clip, tmp_path):
     assert stats.true_peak_dbtp is not None
 
 
-def test_pipeline_checks_on_clip(clip, monkeypatch):
+def test_pipeline_checks_on_clip(clip):
     """Frames → OCR → checks, with storage stubbed out."""
-    monkeypatch.setattr(preflight.storage, "upload_bytes", lambda key, data, ct: key)
     meta = probe(clip)
     ctx = AnalysisContext(rules=load_rules("tiktok"), probe=meta)
-    ctx.frames, ctx.scene_cuts, images, _ = preflight._sample_frames(clip, meta.duration_s, "test")
+    ctx.frames, ctx.scene_cuts, images, _ = sample_frames(
+        clip, meta.duration_s, lambda t, d: f"f{t}"
+    )
     for f, img in zip(ctx.frames, images, strict=True):
         f.ocr = read_text(img)
         f.ocr_ok = True
@@ -124,3 +125,18 @@ def test_transcribe_voice_with_word_timestamps(tmp_path):
     assert "scrolling" in text and "link" in text
     assert t.first_word_s is not None and t.first_word_s < 1.0
     assert all(w.end >= w.start for w in t.words)
+
+
+def test_analyze_video_without_llm(clip, tmp_path):
+    steps = []
+    result = analyze_video(
+        clip,
+        tmp_path,
+        rules=load_rules("tiktok"),
+        caption="#ad test",
+        on_step=lambda s, st: steps.append((s, st)),
+    )
+    assert result.llm_error and "turned off" in result.llm_error
+    assert ("llm", "error") in steps and ("score", "done") in steps
+    assert {r.id: r.status for r in result.checks}["comp.disclosure"] == "pass"
+    assert set(result.timings_s) >= {"probe", "frames", "audio", "transcribe", "ocr", "score"}
