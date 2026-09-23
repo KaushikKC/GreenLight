@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { pitchInput } from "@/lib/brand-schema";
 import { createPitch, hasOrganicMention } from "@/lib/brands-server";
+import { checkLimit, limitResponse } from "@/lib/limits-server";
 import { getUserId } from "@/lib/session";
 
 /** Queue a pitch draft for a brand the creator genuinely mentions. Never sent. */
@@ -16,6 +17,8 @@ export async function POST(request: Request) {
       { status: 422 },
     );
   }
+  const limit = await checkLimit(userId, "pitches");
+  if (!limit.ok) return limitResponse(limit);
   const pitch = await createPitch(userId, parsed.data);
   return NextResponse.json({ id: pitch.id }, { status: 201 });
 }
