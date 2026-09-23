@@ -1,0 +1,15 @@
+{
+  "_note": "Per-user rate limits. Guests (no sign-in) get the lower tier. Counts are rows created in the window.",
+  "guest": {
+    "preflights": [{"per": "hour", "max": 6}, {"per": "day", "max": 20}],
+    "contracts": [{"per": "day", "max": 15}],
+    "posts": [{"per": "day", "max": 1000}],
+    "pitches": [{"per": "hour", "max": 10}, {"per": "day", "max": 30}]
+  },
+  "user": {
+    "preflights": [{"per": "hour", "max": 20}, {"per": "day", "max": 100}],
+    "contracts": [{"per": "day", "max": 50}],
+    "posts": [{"per": "day", "max": 5000}],
+    "pitches": [{"per": "hour", "max": 30}, {"per": "day", "max": 150}]
+  }
+}
