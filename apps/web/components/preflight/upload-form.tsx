@@ -138,7 +138,7 @@ export function UploadForm({ maxBytes, maxDurationS, defaults }: Props) {
       <label
         htmlFor="video"
         className={`flex cursor-pointer flex-col items-center gap-2 rounded-3xl border-2 border-dashed px-4 py-8 text-center transition ${
-          file ? "border-go bg-go-soft/50" : "bg-card hover:border-ink/40"
+          file ? "border-ink bg-lime-soft" : "border-ink/40 bg-card hover:border-ink hover:bg-lime-soft/50"
         }`}
       >
         {file ? <Film className="size-8 text-go" aria-hidden /> : <UploadCloud className="size-8" aria-hidden />}
@@ -166,7 +166,7 @@ export function UploadForm({ maxBytes, maxDurationS, defaults }: Props) {
           {platforms.map((p) => (
             <label
               key={p}
-              className="flex h-12 cursor-pointer items-center justify-center rounded-2xl border bg-card text-sm font-semibold has-[:checked]:border-ink has-[:checked]:bg-ink has-[:checked]:text-paper"
+              className="flex h-12 cursor-pointer items-center justify-center rounded-2xl border-2 border-ink/20 bg-card text-sm font-bold transition has-[:checked]:border-ink has-[:checked]:bg-lime has-[:checked]:text-on-color has-[:checked]:shadow-[3px_3px_0_0_var(--ink)]"
             >
               <input
                 type="radio"
@@ -182,7 +182,7 @@ export function UploadForm({ maxBytes, maxDurationS, defaults }: Props) {
         </div>
       </fieldset>
 
-      <details open={Boolean(defaults)} className="rounded-2xl border bg-card p-4 [&_summary]:cursor-pointer">
+      <details open={Boolean(defaults)} className="pop-sm rounded-2xl bg-card p-4 [&_summary]:cursor-pointer" style={{ "--pop": "var(--sky)" } as React.CSSProperties}>
         <summary className="text-sm font-medium">
           Brief, caption and brand (optional)
         </summary>
@@ -224,7 +224,7 @@ export function UploadForm({ maxBytes, maxDurationS, defaults }: Props) {
         </p>
       )}
 
-      <Button type="submit" size="lg" disabled={!file || busy} className="h-14 rounded-2xl text-base font-semibold">
+      <Button type="submit" size="lg" disabled={!file || busy} className="pop pop-press h-14 rounded-2xl bg-lime text-lg font-bold text-on-color hover:bg-lime disabled:opacity-60">
         {phase.kind === "uploading"
           ? `Uploading… ${phase.pct}%`
           : phase.kind === "queuing"

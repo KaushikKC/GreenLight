@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { z } from "zod";
 
 import { UploadForm } from "@/components/preflight/upload-form";
+import { AppNav } from "@/components/app-nav";
+import { PageHero } from "@/components/page-hero";
 import { SiteHeader } from "@/components/site-header";
 import { getPreflightForUser, recheckDefaults } from "@/lib/preflight";
 import { uploadLimits } from "@/lib/rules";
@@ -23,18 +25,15 @@ export default async function NewPreflightPage(props: PageProps<"/preflight/new"
   const { maxBytes, maxDurationS } = uploadLimits();
   return (
     <>
-      <SiteHeader />
+      <SiteHeader>
+        <AppNav active="preflight" />
+      </SiteHeader>
       <main className="mx-auto flex w-full max-w-md flex-1 flex-col gap-6 px-4 pt-2 pb-10">
-        <header className="flex flex-col gap-2">
-          <h1 className="text-3xl font-bold tracking-tight">
-            {defaults ? "Re-check your draft" : "Check a draft"}
-          </h1>
-          <p className="text-muted-foreground">
-            {defaults
-              ? "Upload the new version. We'll keep your brief and show what you fixed."
-              : "Upload your ad draft and we'll tell you what to fix before the brand sees it."}
-          </p>
-        </header>
+        <PageHero feature="preflight" sticker={defaults ? "Re-check" : "Preflight"} title={defaults ? "Re-check your draft" : "Check a draft"}>
+          {defaults
+            ? "Upload the new version. We'll keep your brief and show what you fixed."
+            : "Upload your ad draft and we'll tell you what to fix before the brand sees it."}
+        </PageHero>
         <UploadForm maxBytes={maxBytes} maxDurationS={maxDurationS} defaults={defaults} />
       </main>
     </>
