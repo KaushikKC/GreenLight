@@ -11,6 +11,7 @@ import {
   dealConflicts,
   exclusivityConflicts,
   expiringWithin,
+  formatDate,
   formatMoney,
   isActive,
   normalizeCategory,
@@ -271,5 +272,13 @@ describe("toIcs", () => {
 
   it("escapes commas in quotes", () => {
     expect(ics.replace(/\r\n /g, "")).toContain("ninety (90) days\\, from first post");
+  });
+});
+
+describe("formatDate", () => {
+  it("formats calendar dates without shifting the day", () => {
+    expect(formatDate("2026-09-23")).toBe("23 Sep 2026");
+    expect(formatDate("2026-01-01")).toBe("1 Jan 2026");
+    expect(formatDate(null)).toBe("");
   });
 });

@@ -52,6 +52,18 @@ const FOREVER = "9999-12-31";
 const toMs = (iso: string) => Date.parse(`${iso}T00:00:00Z`);
 export const toIso = (ms: number) => new Date(ms).toISOString().slice(0, 10);
 
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+/**
+ * "2026-09-23" → "23 Sep 2026". Fixed month names rather than Intl, so the
+ * server and every browser render the same string (no hydration mismatch).
+ */
+export function formatDate(iso: string | null | undefined): string {
+  if (!iso) return "";
+  const [y, m, d] = iso.split("-").map(Number);
+  return `${d} ${MONTHS[m - 1]} ${y}`;
+}
+
 /** Today's date (UTC) for request-time use. */
 export const todayIso = () => toIso(Date.now());
 
