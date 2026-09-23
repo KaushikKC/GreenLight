@@ -1,0 +1,31 @@
+{
+  "brand": {"value": "Glow Serum (Glow Labs Ltd)", "source_quote": "Glow Labs Ltd, trading as Glow Serum (\"Brand\")", "confidence": 0.97},
+  "brand_category_id": "skincare",
+  "campaign": {"value": "Morning Glow", "source_quote": "the \"Morning Glow\" spring campaign", "confidence": 0.95},
+  "signed_date": {"value": "2026-03-03", "source_quote": "entered into on 3 March 2026 (the \"Effective Date\")", "confidence": 0.96},
+  "fee": {"amount": 2500, "currency": "GBP", "source_quote": "a total fee of £2,500 (two thousand five hundred pounds sterling)", "confidence": 0.98},
+  "payment_terms": {"net_days": 90, "trigger": "receipt of a valid invoice", "source_quote": "within ninety (90) days of Brand's receipt of a valid invoice", "confidence": 0.95},
+  "deliverables": [
+    {"platform": "TikTok", "format": "video", "count": 1, "due_date": "2026-03-20", "source_quote": "one (1) TikTok video of 30 to 60 seconds, to be posted no later than 20 March 2026", "confidence": 0.95},
+    {"platform": "Instagram", "format": "reel", "count": 1, "due_date": "2026-03-27", "source_quote": "the first by 27 March 2026", "confidence": 0.9},
+    {"platform": "Instagram", "format": "reel", "count": 1, "due_date": "2026-04-10", "source_quote": "the second by 10 April 2026", "confidence": 0.9}
+  ],
+  "usage_rights": [
+    {"scope": "organic", "platforms": ["TikTok", "Instagram"], "territories": [], "start": "2026-03-03", "end": "2027-03-03", "duration_text": "twelve (12) months from the Effective Date", "perpetual": false, "source_quote": "Brand may repost the deliverables on Brand's own social media channels (TikTok and Instagram) for twelve (12) months from the Effective Date", "confidence": 0.9},
+    {"scope": "paid", "platforms": ["all"], "territories": ["worldwide"], "start": "2026-03-03", "end": null, "duration_text": "in perpetuity", "perpetual": true, "source_quote": "Brand may use the deliverables in paid advertising on all platforms, worldwide, in perpetuity", "confidence": 0.93}
+  ],
+  "whitelisting": [
+    {"platforms": ["TikTok", "Instagram"], "start": null, "end": null, "duration_text": "90 days from the date the first deliverable is posted", "source_quote": "for ninety (90) days from the date the first deliverable is posted", "confidence": 0.88}
+  ],
+  "exclusivity": [
+    {"category": "skincare", "category_id": "skincare", "competitors_named": ["The Ordinary", "CeraVe", "La Roche-Posay"], "start": "2026-03-03", "end": "2026-12-31", "duration_text": "from the Effective Date until 31 December 2026", "source_quote": "Creator will not create sponsored content for any other skincare brand, including but not limited to The Ordinary, CeraVe and La Roche-Posay, from the Effective Date until 31 December 2026", "confidence": 0.95}
+  ],
+  "revision_rounds": {"value": "unlimited", "source_quote": "Creator will make all revisions requested by Brand until Brand approves the content", "confidence": 0.85},
+  "raw_file_delivery": {"value": true, "source_quote": "Creator will deliver the raw, unedited footage for each deliverable to Brand within 5 business days of posting", "confidence": 0.95},
+  "termination": {"value": "Either party, 14 days' written notice", "source_quote": "Either party may terminate this Agreement with 14 days' written notice", "confidence": 0.93},
+  "kill_fee": {"value": "50% of the total fee if Brand terminates after production begins", "source_quote": "Brand will pay Creator a kill fee of 50% of the total fee", "confidence": 0.93},
+  "red_flags": [
+    {"type": "ai_likeness", "quote": "including content created or edited using artificial intelligence tools", "why": "The brand could make new content of you with AI, beyond what you filmed."},
+    {"type": "raw_footage", "quote": "deliver the raw, unedited footage for each deliverable", "why": "Raw footage lets the brand re-cut your content in ways you haven't approved."}
+  ]
+}
