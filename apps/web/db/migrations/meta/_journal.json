@@ -29,6 +29,13 @@
       "when": 1790178647192,
       "tag": "0003_brands",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1790184231836,
+      "tag": "0004_video_deleted_at",
+      "breakpoints": true
     }
   ]
 }
