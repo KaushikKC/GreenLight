@@ -1,8 +1,18 @@
 {
   "subject": "Four bottles in: a creator who already uses your niacinamide",
-  "body": "Hi The Ordinary team,\n\nI'm Maya. Your niacinamide is a fixture in my 5am routine, and I recently finished my fourth bottle and told my followers it's a forever repurchase.\n\nMy content is honest, routine-led skincare, so featuring a product I already use every day would feel natural rather than scripted.\n\nWould you be open to sending a product for an honest routine video? I'd love to show your niacinamide alongside the rest of my morning.\n\nThanks for reading,\nMaya (@maya)",
+  "body": "Hi The Ordinary team,\n\nI'm Maya. Your niacinamide is a fixture in my 5am routine, and I recently finished my fourth bottle, and it's a forever repurchase for me.\n\nMy content is honest, routine-led skincare, so featuring a product I already use every day would feel natural rather than scripted.\n\nWould you be open to sending a product for an honest routine video? I'd love to show your niacinamide alongside the rest of my morning.\n\nThanks for reading,\nMaya (@maya)",
   "claims": [
-    {"text": "Your niacinamide is a fixture in my 5am routine", "post_ids": ["P1"]},
-    {"text": "I recently finished my fourth bottle and told my followers it's a forever repurchase", "post_ids": ["P2"]}
+    {
+      "text": "Your niacinamide is a fixture in my 5am routine",
+      "post_ids": [
+        "P1"
+      ]
+    },
+    {
+      "text": "I recently finished my fourth bottle, and it's a forever repurchase for me",
+      "post_ids": [
+        "P2"
+      ]
+    }
   ]
 }
