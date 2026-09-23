@@ -1,5 +1,28 @@
 # Progress
 
+## Phase 5: Brands You Already Love ✅ (2026-09-23)
+
+### Done
+- **Import, no scraping** (`/brands`): paste post links + captions (URL then caption, optional date, multi-line) or upload a CSV (`url, posted_at, caption`; quoted fields OK). Platform from the URL; duplicate URLs ignored (unique per user). Parser in `lib/post-import.ts`.
+- **Brand scan job** (`jobs/brands.py`, `ref_id` = user): unscanned posts in batches of 10 to the **fast** model (`record_brand_mentions`, prompt `brand_mentions_v1`). Mentions whose evidence isn't verbatim in the post are **dropped**; caption `#ad`/`#gifted`/code signals force `is_sponsored`. Progress saved per batch; rate limits → `RetryLater`. Then names are canonicalised: key (lowercase, strip @/#/punctuation/suffixes) → alias table (`rules/brands.json`) → one LLM merge pass (`brand_merge_v1`), falling back to deterministic names.
+- **Ranking** (`lib/brands.ts`, tested): plan's love score (90-day half-life × (0.5 + sentiment/2) × modality weight), low-confidence mentions ignored, all-sponsored brands → **Past partners**, monthly sparkline, best evidence first.
+- **Pitch job** (`jobs/pitch.py`, prompt `pitch_v1`): up to 8 organic evidence posts shown as P1…Pn; output validated (`Pitch` schema) to be < 150 words, cite only evidence posts, and never mention follower numbers unless the creator entered them. Stored with claims → post ids. Requires ≥1 organic mention.
+- **UI:** import panel (paste/CSV, re-pick same file), scan status that refreshes the page when done, "About you" profile (handle, niche, audience, optional followers), brand cards (rank, love score, mentions, sparkline, evidence with post links, "not a fan here" for negative mentions), past partners, **Draft pitch** (gifting / paid / affiliate + note → editable subject/body with word count, "where each claim comes from" panel linking posts, Copy; "Greenlight never sends anything").
+- **Shared nav** (Preflight · Rights · Brands) and home links.
+- **LLM plumbing:** providers expose a `fast_model` (Anthropic `MODEL_FAST`, Gemini `GEMINI_MODEL_FAST` list); Gemini falls back across both lists; `structured(validation_context=…)` for context-aware validation.
+- **Schema:** migration `0003` (creator profile on `users`, `posts.scanned_at` + unique (user, url), pitch status/ask/note/claims/error).
+- **Tests:** 93 vitest, 241 pytest (canonicalisation, sponsorship, schemas, extraction, scan + pitch jobs on Postgres with replay), **3 Playwright flows** (`make e2e`): Preflight, Rights, Brands (CSV import → ranking → past partners → re-import dedupe → grounded pitch).
+
+### Next: Phase 6 (Evals + hardening)
+
+### Known issues / decisions
+- Only paste/CSV import; platform export parsers (Instagram/TikTok data downloads) and video upload are not done (optional in the plan).
+- Replay answers for brand mentions assume `fixtures/posts.csv` in one batch (oldest post first).
+- Ranking is computed on page load (not stored), so recency always reflects today.
+- Sponsorship from caption tags applies to every brand in that post.
+- Not yet run live on Gemini (to save free quota); replay + unit tests cover the logic.
+
+
 ## Phase 4: Rights Wallet ✅ (2026-09-23)
 
 ### Done
