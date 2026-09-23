@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { importInput } from "@/lib/brand-schema";
 import { importPosts } from "@/lib/brands-server";
 import { parseCsv, parsePasted } from "@/lib/post-import";
+import { checkLimit, limitResponse } from "@/lib/limits-server";
 import { getOrCreateUserId } from "@/lib/session";
 
 /** Import the creator's own posts (paste or CSV) and queue a brand scan. */
@@ -30,6 +31,8 @@ export async function POST(request: Request) {
     );
   }
   const userId = await getOrCreateUserId();
+  const limit = await checkLimit(userId, "posts", result.posts.length);
+  if (!limit.ok) return limitResponse(limit);
   const saved = await importPosts(userId, result.posts, format === "csv" ? "csv" : "manual");
   return NextResponse.json({ ...saved, skipped: result.skipped.length }, { status: 201 });
 }
