@@ -87,3 +87,23 @@ def test_llm_failure_on_last_attempt_marks_error(jobdb, replay):
         assert "No saved AI answer" in row["extracted"]["error"]
     finally:
         _cleanup(jobdb, user)
+
+
+def test_rate_limit_asks_worker_to_retry_later(jobdb, replay, monkeypatch):
+    from analyzer.contracts import extract
+    from analyzer.jobs.base import RetryLater
+    from analyzer.llm.errors import LLMRateLimited
+
+    def limited(*a, **kw):
+        raise LLMRateLimited("Gemini free-tier rate limit reached.", retry_after_s=5)
+
+    monkeypatch.setattr(contract, "extract_terms", limited)
+    user, cid, job = _contract(jobdb, (FIXTURES / "contract_glow.txt").read_text())
+    try:
+        with pytest.raises(RetryLater) as exc:
+            contract.run(job, jobdb.conn)
+        assert exc.value.delay_s == contract.MIN_RATE_LIMIT_WAIT_S  # never sooner than 30s
+        assert _row(jobdb, cid)["status"] == "extracting"  # still waiting, not an error
+    finally:
+        _cleanup(jobdb, user)
+    assert extract  # imported module stays patched only for this test

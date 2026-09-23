@@ -17,12 +17,15 @@ from analyzer import storage
 from analyzer.config import get_settings
 from analyzer.contracts.extract import PROMPT_VERSION, extract_terms
 from analyzer.contracts.text import ContractText, from_docx, from_pdf, from_plain
-from analyzer.jobs.base import Job, PermanentJobError
+from analyzer.jobs.base import Job, PermanentJobError, RetryLater
 from analyzer.llm.client import LLM, LLMError
+from analyzer.llm.errors import LLMRateLimited
 
 log = logging.getLogger(__name__)
 
 EXTRACTED_VERSION = 1
+# Never retry a rate limit sooner than this; free-tier quotas are per minute.
+MIN_RATE_LIMIT_WAIT_S = 30.0
 # Contracts longer than this are almost certainly not a single deal.
 MAX_CHARS = 200_000
 
@@ -98,6 +101,11 @@ def run(job: Job, conn: psycopg.Connection) -> None:
     except PermanentJobError as e:
         _set(conn, job.ref_id, "error", extracted={"error": str(e)})
         raise
+    except LLMRateLimited as e:
+        if job.attempts >= get_settings().worker_max_attempts:
+            _set(conn, job.ref_id, "error", extracted={"error": str(e)})
+            raise
+        raise RetryLater(str(e), max(e.retry_after_s, MIN_RATE_LIMIT_WAIT_S)) from e
     except Exception as e:
         if conn.info.transaction_status != psycopg.pq.TransactionStatus.IDLE:
             conn.rollback()
