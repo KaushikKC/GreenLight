@@ -1,0 +1,56 @@
+{
+  "_note": "Expected extractions for the contracts golden set. Only listed fields are scored. `brand_contains` is a case-insensitive substring; dates are YYYY-MM-DD; `red_flags` is the exact set of flag types that should be raised (scored with precision/recall).",
+  "contracts": {
+    "01_glow_agreement": {
+      "brand_contains": "glow", "category": "skincare", "signed_date": "2026-03-03",
+      "fee_amount": 2500, "fee_currency": "GBP", "net_days": 90,
+      "has_paid_usage": true, "perpetual_usage": true,
+      "whitelisting_start_unstated": true,
+      "exclusivity_category": "skincare", "exclusivity_end": "2026-12-31",
+      "red_flags": ["perpetual_usage", "worldwide_paid_usage", "unlimited_revisions", "late_payment", "ai_likeness", "raw_footage"]
+    },
+    "02_email_deal": {
+      "brand_contains": "brightbrew", "category": "beverages", "signed_date": null,
+      "fee_amount": 1200, "fee_currency": "USD", "net_days": 30,
+      "has_paid_usage": false, "perpetual_usage": false, "has_exclusivity": false,
+      "red_flags": []
+    },
+    "03_fitness_agreement": {
+      "brand_contains": "stride", "category": "footwear", "signed_date": "2026-09-01",
+      "fee_amount": 800, "fee_currency": "GBP", "net_days": 45,
+      "has_paid_usage": true, "perpetual_usage": false,
+      "exclusivity_end": "2026-11-30",
+      "red_flags": []
+    },
+    "04_perpetual_everything": {
+      "brand_contains": "lumin", "category": "makeup", "signed_date": "2026-06-05",
+      "fee_amount": 3000, "fee_currency": "EUR", "net_days": 90,
+      "has_paid_usage": true, "perpetual_usage": true, "has_exclusivity": false,
+      "red_flags": ["perpetual_usage", "worldwide_paid_usage", "late_payment", "ai_likeness", "unlimited_revisions", "raw_footage", "no_kill_fee"]
+    },
+    "05_exclusivity_outlasts_usage": {
+      "brand_contains": "nova", "category": "tech", "signed_date": "2026-08-20",
+      "fee_amount": 1500, "fee_currency": "GBP", "net_days": 30,
+      "has_paid_usage": false, "perpetual_usage": false,
+      "exclusivity_category": "tech", "exclusivity_end": "2027-08-31",
+      "red_flags": ["exclusivity_exceeds_usage"]
+    },
+    "06_gifting_only": {
+      "brand_contains": "petal", "category": "skincare", "fee_amount": null,
+      "has_paid_usage": false, "perpetual_usage": false, "has_exclusivity": false,
+      "red_flags": []
+    },
+    "07_spark_ads_relative": {
+      "brand_contains": "zest", "category": "supplements", "signed_date": "2026-09-02",
+      "fee_amount": 2000, "fee_currency": "USD", "net_days": 60,
+      "whitelisting_start_unstated": true, "has_exclusivity": false,
+      "red_flags": []
+    },
+    "08_one_sided_termination": {
+      "brand_contains": "harvest", "category": "food", "signed_date": "2026-08-12",
+      "fee_amount": 450, "fee_currency": "GBP", "net_days": 14,
+      "has_paid_usage": false, "has_exclusivity": false,
+      "red_flags": ["no_kill_fee", "other"]
+    }
+  }
+}
