@@ -11,6 +11,7 @@ import traceback
 import psycopg
 
 from analyzer import queue
+from analyzer.cleanup import delete_expired_videos
 from analyzer.config import get_settings
 from analyzer.db import connect
 from analyzer.jobs import HANDLERS, Handler, Job, PermanentJobError, RetryLater
@@ -18,6 +19,7 @@ from analyzer.jobs import HANDLERS, Handler, Job, PermanentJobError, RetryLater
 log = logging.getLogger("analyzer.worker")
 
 STALE_CHECK_EVERY_S = 60
+CLEANUP_EVERY_S = 3600
 
 
 def run_one(
@@ -79,6 +81,7 @@ def main() -> None:
 
     log.info("worker started (poll every %.1fs)", settings.worker_poll_interval_s)
     last_stale_check = 0.0
+    last_cleanup = 0.0
     while not stopping:
         try:
             with connect() as conn:
@@ -93,6 +96,14 @@ def main() -> None:
                         if n:
                             log.warning("recovered %d stale job(s)", n)
                         last_stale_check = now
+                    if now - last_cleanup > CLEANUP_EVERY_S:
+                        try:
+                            delete_expired_videos(conn)
+                        except psycopg.OperationalError:
+                            raise
+                        except Exception:  # housekeeping must never stop the worker
+                            log.exception("video cleanup failed")
+                        last_cleanup = now
                     if run_one(conn, HANDLERS, settings.worker_max_attempts) is None:
                         time.sleep(settings.worker_poll_interval_s)
         except psycopg.OperationalError as e:
