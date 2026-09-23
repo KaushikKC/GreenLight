@@ -92,7 +92,7 @@ export function NewContractForm() {
         <label
           htmlFor="contract-file"
           className={`flex cursor-pointer flex-col items-center gap-2 rounded-3xl border-2 border-dashed px-4 py-10 text-center transition ${
-            file ? "border-go bg-go-soft/50" : "bg-card hover:border-ink/40"
+            file ? "border-ink bg-violet-soft" : "border-ink/40 bg-card hover:border-ink hover:bg-violet-soft/50"
           }`}
         >
           {file ? <FileText className="size-8 text-go" aria-hidden /> : <UploadCloud className="size-8" aria-hidden />}
@@ -124,7 +124,7 @@ export function NewContractForm() {
         </p>
       )}
 
-      <Button type="submit" size="lg" disabled={!ready || busy} className="h-14 rounded-2xl text-base font-semibold">
+      <Button type="submit" size="lg" disabled={!ready || busy} className="pop pop-press h-14 rounded-2xl bg-violet text-lg font-bold text-on-color hover:bg-violet disabled:opacity-60">
         {busy ? "Reading your contract…" : "Extract the terms"}
       </Button>
       <p className="text-center text-xs text-muted-foreground">

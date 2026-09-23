@@ -23,9 +23,14 @@ export function DealChecker({ windows, today }: { windows: RightsWindow[]; today
   }
 
   return (
-    <section className="rounded-3xl border bg-card p-5" aria-labelledby="checker-heading" data-testid="deal-checker">
-      <h2 id="checker-heading" className="text-xl font-semibold">
-        Can I take this deal?
+    <section
+      className="pop rounded-[2rem] bg-violet-soft p-5"
+      style={{ "--pop": "var(--violet)" } as React.CSSProperties}
+      aria-labelledby="checker-heading"
+      data-testid="deal-checker"
+    >
+      <h2 id="checker-heading" className="text-2xl font-extrabold">
+        Can I take this deal? 🤔
       </h2>
       <p className="mt-1 text-sm text-muted-foreground">Checks the offer against your exclusivity clauses.</p>
       <form onSubmit={check} className="mt-4 flex flex-col gap-3">
@@ -58,7 +63,7 @@ export function DealChecker({ windows, today }: { windows: RightsWindow[]; today
             <Input type="date" value={end} min={start} onChange={(e) => setEnd(e.target.value)} aria-label="Offer end" />
           </label>
         </div>
-        <button type="submit" className="h-11 rounded-2xl bg-ink font-semibold text-paper">
+        <button type="submit" className="pop-sm pop-press h-11 rounded-2xl bg-violet font-bold text-on-color">
           Check
         </button>
       </form>

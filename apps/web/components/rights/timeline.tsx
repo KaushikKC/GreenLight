@@ -37,7 +37,7 @@ export function RightsTimeline({ timeline }: { timeline: Timeline }) {
         </ul>
       </div>
       <div className="-mx-4 overflow-x-auto px-4 pb-2">
-        <div className="relative min-w-[560px] rounded-2xl border bg-card p-3">
+        <div className="pop-sm relative min-w-[560px] rounded-3xl bg-card p-3" style={{ "--pop": "var(--violet)" } as React.CSSProperties}>
           <div className="relative ml-24 h-5 text-[11px] text-muted-foreground">
             {timeline.months.map((m) => (
               <span key={`${m.label}-${m.pct}`} className="absolute -translate-x-1/2" style={{ left: `${m.pct}%` }}>

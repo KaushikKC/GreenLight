@@ -2,6 +2,7 @@ import { CalendarPlus, FilePlus2, LoaderCircle } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { PageHero } from "@/components/page-hero";
 import { Alerts } from "@/components/rights/alerts";
 import { DealChecker } from "@/components/rights/deal-checker";
 import { DealsList } from "@/components/rights/deals-list";
@@ -32,21 +33,20 @@ export default async function WalletPage() {
   return (
     <main className="mx-auto flex w-full max-w-md flex-1 flex-col gap-6 px-4 pt-2 pb-6 md:max-w-3xl">
       <header className="flex flex-col gap-3">
-        <h1 className="text-3xl font-bold tracking-tight">Rights Wallet</h1>
-        <p className="text-muted-foreground">
+        <PageHero feature="rights" title="Rights Wallet">
           Every deal&apos;s usage, whitelisting and exclusivity in one place, with reminders before
           anything ends.
-        </p>
+        </PageHero>
         <div className="grid grid-cols-2 gap-2">
           <Link
             href="/rights/new"
-            className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-ink font-semibold text-paper"
+            className="pop-sm pop-press inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-violet font-bold text-on-color"
           >
             <FilePlus2 className="size-4" /> Add contract
           </Link>
           <a
             href="/api/rights/calendar.ics"
-            className={`inline-flex h-12 items-center justify-center gap-2 rounded-2xl border bg-card font-semibold ${
+            className={`pop-sm pop-press inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-sun font-bold text-on-color ${
               empty ? "pointer-events-none opacity-50" : ""
             }`}
             aria-disabled={empty}
@@ -81,8 +81,8 @@ export default async function WalletPage() {
       )}
 
       {empty ? (
-        <section className="rounded-3xl border bg-card p-6 text-center">
-          <p className="font-display text-xl font-semibold">No deals yet</p>
+        <section className="pop rounded-[2rem] bg-violet-soft p-6 text-center" style={{ "--pop": "var(--violet)" } as React.CSSProperties}>
+          <p className="font-display text-2xl font-extrabold">No deals yet 🗂️</p>
           <p className="mt-1 text-sm text-muted-foreground">
             Add a contract (or paste the deal email) and we&apos;ll track its dates for you.
           </p>

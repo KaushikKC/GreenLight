@@ -14,10 +14,10 @@ export function DealsList({ deals, windows }: { deals: WalletDeal[]; windows: Ri
       </h2>
       <ul className="flex flex-col gap-3">
         {deals.map((d) => (
-          <li key={d.id} className="rounded-2xl border bg-card p-4" data-testid="deal">
+          <li key={d.id} className="pop-sm rounded-3xl bg-card p-4" style={{ "--pop": "var(--violet)" } as React.CSSProperties} data-testid="deal">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="font-display text-lg font-semibold">{d.brand}</p>
+                <p className="font-display text-xl font-extrabold">{d.brand}</p>
                 <p className="text-sm text-muted-foreground">
                   {[CATEGORY_LABELS[d.category ?? ""], d.campaign].filter(Boolean).join(" · ")}
                 </p>
