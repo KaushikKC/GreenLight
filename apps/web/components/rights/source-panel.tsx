@@ -16,14 +16,20 @@ export function SourcePanel({
   quote: string | null;
 }) {
   const markRef = useRef<HTMLElement | null>(null);
+  const boxRef = useRef<HTMLDivElement | null>(null);
   const hit = text ? findQuote(text, quote) : null;
 
   useEffect(() => {
-    markRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    // Scroll only the contract box, so the page itself doesn't slide around.
+    const box = boxRef.current;
+    const mark = markRef.current;
+    if (!box || !mark) return;
+    // The box is position:relative, so offsetTop is measured from its top.
+    box.scrollTop = mark.offsetTop - box.clientHeight / 2 + mark.offsetHeight / 2;
   }, [quote]);
 
   return (
-    <section className="flex h-full flex-col gap-3" aria-label="Contract" data-testid="source-panel">
+    <section className="flex flex-col gap-3" aria-label="Contract" data-testid="source-panel">
       <div className="flex items-center justify-between gap-2">
         <h2 className="text-lg font-semibold">Contract</h2>
         {fileUrl && (
@@ -43,7 +49,10 @@ export function SourcePanel({
         </p>
       )}
       {text ? (
-        <div className="max-h-[70vh] overflow-y-auto rounded-2xl border bg-card p-4 font-serif text-[15px] leading-relaxed whitespace-pre-wrap">
+        <div
+          ref={boxRef}
+          className="relative max-h-[70vh] overflow-y-auto rounded-2xl border bg-card p-4 font-serif text-[15px] leading-relaxed whitespace-pre-wrap"
+        >
           {hit ? (
             <>
               {text.slice(0, hit.start)}
