@@ -5,8 +5,8 @@ import { defineConfig } from "@playwright/test";
 // Happy path needs Postgres + MinIO running (`make infra && make migrate`).
 // Runs against a production build on its own port, so a long-lived `next dev`
 // (and its HMR cache) never leaks into the test.
-// The worker is started with AI review disabled so the run is free and
-// deterministic; AI-judged checks show "couldn't check".
+// The worker runs with saved AI answers (replay) so the run is free and
+// deterministic.
 const analyzer = path.resolve(__dirname, "../../services/analyzer");
 
 export default defineConfig({
@@ -36,7 +36,14 @@ export default defineConfig({
     {
       command: `cd "${analyzer}" && uv run python -m analyzer.worker 2>&1`,
       wait: { stdout: /worker started/ },
-      env: { ANTHROPIC_API_KEY: "", GEMINI_API_KEY: "", LLM_PROVIDER: "" },
+      // Replay mode: contract extraction answers from e2e/replay; everything
+      // else the AI would judge shows "couldn't check". No key, no cost.
+      env: {
+        ANTHROPIC_API_KEY: "",
+        GEMINI_API_KEY: "",
+        LLM_PROVIDER: "replay",
+        LLM_REPLAY_DIR: path.resolve(__dirname, "e2e/replay"),
+      },
       reuseExistingServer: false,
       timeout: 120_000,
     },
