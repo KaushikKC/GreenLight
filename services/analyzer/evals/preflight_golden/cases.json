@@ -1,0 +1,151 @@
+{
+  "_note": "Synthetic Preflight golden set. Each case describes a clip (built by generate.py) and the expected status of the checks it targets. Unlisted checks aren't scored. Positions are fractions of the frame; text 'size' is a fraction of frame height.",
+  "cases": [
+    {
+      "id": "good_all",
+      "desc": "Hook text, captions matching speech, good volume, textured sharp footage, #ad caption",
+      "background": "texture",
+      "texts": [
+        {"text": "STOP SCROLLING", "x": 0.12, "y": 0.42, "size": 0.035, "from": 0, "to": 2.2},
+        {"text": "THIS SERUM CHANGED MY SKIN", "x": 0.06, "y": 0.5, "size": 0.028, "from": 2.2, "to": 7}
+      ],
+      "voice": "Stop scrolling. This serum changed my skin in two weeks.",
+      "gain_db": 7,
+      "caption": "#ad my morning routine",
+      "labels": {"format.aspect": "pass", "format.resolution": "pass", "format.duration": "pass", "hook.text": "pass", "read.safe_zone": "pass", "read.captions": "pass", "read.text_size": "pass", "audio.loudness": "pass", "tech.blur": "pass", "tech.lighting": "pass", "comp.disclosure": "pass"}
+    },
+    {
+      "id": "text_bottom_zone",
+      "desc": "CTA text sits in TikTok's bottom caption area",
+      "background": "texture",
+      "texts": [
+        {"text": "SHOP NOW", "x": 0.25, "y": 0.9, "size": 0.035, "from": 0, "to": 7}
+      ],
+      "labels": {"read.safe_zone": "fail"}
+    },
+    {
+      "id": "text_right_rail",
+      "desc": "Text behind the like/comment/share rail",
+      "background": "texture",
+      "texts": [
+        {"text": "LINK", "x": 0.86, "y": 0.55, "size": 0.03, "from": 0, "to": 7}
+      ],
+      "labels": {"read.safe_zone": "fail"}
+    },
+    {
+      "id": "text_top_bar",
+      "desc": "Headline under the top bar",
+      "background": "texture",
+      "texts": [
+        {"text": "NEW DROP", "x": 0.25, "y": 0.05, "size": 0.035, "from": 0, "to": 7}
+      ],
+      "labels": {"read.safe_zone": "fail", "hook.text": "pass"}
+    },
+    {
+      "id": "landscape",
+      "desc": "Horizontal 16:9 video",
+      "size": [1920, 1080],
+      "background": "texture",
+      "labels": {"format.aspect": "warn", "format.resolution": "pass"}
+    },
+    {
+      "id": "low_res",
+      "desc": "540x960 export",
+      "size": [540, 960],
+      "background": "texture",
+      "labels": {"format.aspect": "pass", "format.resolution": "fail"}
+    },
+    {
+      "id": "too_long",
+      "desc": "70 second ad",
+      "size": [720, 1280],
+      "seconds": 70,
+      "background": "flat",
+      "labels": {"format.duration": "warn"}
+    },
+    {
+      "id": "no_hook_text",
+      "desc": "No on-screen text in the first two seconds",
+      "background": "texture",
+      "texts": [
+        {"text": "TRY IT", "x": 0.3, "y": 0.45, "size": 0.035, "from": 4, "to": 7}
+      ],
+      "labels": {"hook.text": "warn"}
+    },
+    {
+      "id": "tiny_text",
+      "desc": "Text too small to read on a phone",
+      "background": "texture",
+      "texts": [
+        {"text": "terms and conditions apply to this offer", "x": 0.1, "y": 0.45, "size": 0.012, "from": 0, "to": 7}
+      ],
+      "labels": {"read.text_size": "warn"}
+    },
+    {
+      "id": "dark",
+      "desc": "Underexposed footage",
+      "background": "dark",
+      "labels": {"tech.lighting": "warn"}
+    },
+    {
+      "id": "blurry",
+      "desc": "Out of focus footage",
+      "background": "blurry",
+      "labels": {"tech.blur": "warn", "tech.lighting": "pass"}
+    },
+    {
+      "id": "flat_graphics",
+      "desc": "Solid-colour slides with text: sharpness can't be judged",
+      "background": "flat",
+      "texts": [
+        {"text": "3 TIPS FOR GLOWING SKIN", "x": 0.08, "y": 0.45, "size": 0.03, "from": 0, "to": 7}
+      ],
+      "labels": {"tech.blur": "na", "hook.text": "pass"}
+    },
+    {
+      "id": "quiet_audio",
+      "desc": "Voice far too quiet",
+      "background": "texture",
+      "voice": "Here is how I use it every single morning before work.",
+      "gain_db": -12,
+      "labels": {"audio.loudness": "warn"}
+    },
+    {
+      "id": "clipping_audio",
+      "desc": "Voice boosted until it clips",
+      "background": "texture",
+      "voice": "Here is how I use it every single morning before work.",
+      "gain_db": 22,
+      "labels": {"audio.loudness": "warn"}
+    },
+    {
+      "id": "music_only",
+      "desc": "Backing track, nobody talks",
+      "background": "texture",
+      "music": true,
+      "labels": {"audio.music": "warn", "read.captions": "na", "audio.voice_clarity": "na"}
+    },
+    {
+      "id": "speech_no_captions",
+      "desc": "Talking with no on-screen captions",
+      "background": "texture",
+      "voice": "Honestly this is the best cleanser I have ever used on my skin.",
+      "gain_db": 7,
+      "labels": {"read.captions": "warn", "audio.loudness": "pass"}
+    },
+    {
+      "id": "silent",
+      "desc": "No audio track at all",
+      "background": "texture",
+      "no_audio": true,
+      "labels": {"audio.loudness": "warn", "audio.music": "na"}
+    },
+    {
+      "id": "no_disclosure",
+      "desc": "Caption provided without #ad; nothing on screen or spoken",
+      "background": "texture",
+      "caption": "my morning routine with my favourite serum",
+      "labels": {"comp.disclosure": "fail"}
+    }
+  ]
+}
