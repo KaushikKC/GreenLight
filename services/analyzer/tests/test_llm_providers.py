@@ -313,5 +313,8 @@ def test_settings_parse_gemini_model_list(monkeypatch):
     monkeypatch.setattr(s, "llm_provider", "gemini")
     monkeypatch.setattr(s, "gemini_api_key", "g-key")
     monkeypatch.setattr(s, "gemini_model_vision", "m1, m2 ,m3")
+    monkeypatch.setattr(s, "gemini_model_fast", "f1,f2")
     p = provider_from_settings()
-    assert p.vision_model == "m1" and p.fallback_models == ["m2", "m3"]
+    assert (p.vision_model, p.fast_model) == ("m1", "f1")
+    # every other model can stand in when one runs out of quota
+    assert p.fallback_models == ["m2", "m3", "f2", "m1", "f1"]

@@ -16,6 +16,7 @@ class FakeProvider:
     ):
         self._replies = list(replies)
         self.vision_model = vision_model
+        self.fast_model = "fake-fast"
         self.cost = cost
         self.requests: list[dict] = []
 

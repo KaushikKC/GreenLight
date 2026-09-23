@@ -18,6 +18,7 @@ from analyzer.llm.types import Reply, Turn, Usage
 class ReplayProvider:
     name = "replay"
     vision_model = "replay"
+    fast_model = "replay"
 
     def __init__(self, directory: Path):
         self.directory = directory

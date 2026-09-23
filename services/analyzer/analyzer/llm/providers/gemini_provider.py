@@ -64,9 +64,11 @@ class GeminiProvider:
         vision_model: str | None = None,
         free_tier: bool = True,
         fallback_models: list[str] | None = None,
+        fast_model: str | None = None,
     ):
         self.client = client
         self.vision_model = vision_model
+        self.fast_model = fast_model or vision_model
         self.free_tier = free_tier
         # Tried in order when a model is out of daily quota, overloaded or gone.
         # Free-tier quotas are per model, so this multiplies free daily calls.

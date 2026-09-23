@@ -31,9 +31,10 @@ def _block(part: Part) -> dict[str, Any]:
 class AnthropicProvider:
     name = "anthropic"
 
-    def __init__(self, client: Any, vision_model: str | None = None):
+    def __init__(self, client: Any, vision_model: str | None = None, fast_model: str | None = None):
         self.client = client
         self.vision_model = vision_model
+        self.fast_model = fast_model or vision_model
 
     def generate(
         self,

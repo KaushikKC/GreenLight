@@ -56,6 +56,7 @@ class Reply:
 class Provider(Protocol):
     name: str
     vision_model: str | None
+    fast_model: str | None
 
     def generate(
         self,
