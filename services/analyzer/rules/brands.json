@@ -1,0 +1,30 @@
+{
+  "_note": "Brands You Already Love: ranking weights (BUILD_PLAN §8.2), sponsorship signals and brand aliases. Edit freely.",
+  "half_life_days": 90,
+  "modality_weights": {"spoken": 1.0, "on_screen": 0.8, "caption": 0.6, "visual": 0.5},
+  "min_confidence": 0.5,
+  "batch_size": 10,
+  "sponsored_tags": ["#ad", "#advert", "#sponsored", "#paidpartnership", "#paidpartner", "#gifted", "#giftedby", "#partner", "#brandpartner", "#affiliate", "#collab"],
+  "sponsored_phrases": ["paid partnership", "sponsored by", "in partnership with", "gifted by", "use my code", "use code", "discount code", "affiliate link", "#ad"],
+  "strip_suffixes": ["official", "uk", "us", "usa", "global", "hq", "ltd", "inc", "co", "brand", "store", "shop"],
+  "aliases": {
+    "theordinary": "The Ordinary",
+    "deciem": "The Ordinary",
+    "cerave": "CeraVe",
+    "larocheposay": "La Roche-Posay",
+    "lrp": "La Roche-Posay",
+    "glossier": "Glossier",
+    "fentybeauty": "Fenty Beauty",
+    "fenty": "Fenty Beauty",
+    "rarebeauty": "Rare Beauty",
+    "drunkelephant": "Drunk Elephant",
+    "paulaschoice": "Paula's Choice",
+    "olaplex": "Olaplex",
+    "sephora": "Sephora",
+    "lululemon": "Lululemon",
+    "nike": "Nike",
+    "gymshark": "Gymshark",
+    "oatly": "Oatly",
+    "apple": "Apple"
+  }
+}
