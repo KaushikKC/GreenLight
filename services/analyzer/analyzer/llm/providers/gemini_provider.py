@@ -39,6 +39,11 @@ def _retry_delay_s(e: errors.ClientError, default: float = 60.0) -> float:
     return float(match.group(1)) if match else default
 
 
+def _is_daily_quota(e: errors.ClientError) -> bool:
+    """Per-day quotas won't recover by waiting a minute (quotaId ...PerDay...)."""
+    return "PerDay" in str(e)
+
+
 def _is_refusal(resp: Any) -> bool:
     feedback = getattr(resp, "prompt_feedback", None)
     if feedback is not None and getattr(feedback, "block_reason", None):
@@ -53,10 +58,60 @@ def _is_refusal(resp: Any) -> bool:
 class GeminiProvider:
     name = "gemini"
 
-    def __init__(self, client: Any, vision_model: str | None = None, free_tier: bool = True):
+    def __init__(
+        self,
+        client: Any,
+        vision_model: str | None = None,
+        free_tier: bool = True,
+        fallback_models: list[str] | None = None,
+    ):
         self.client = client
         self.vision_model = vision_model
         self.free_tier = free_tier
+        # Tried in order when a model is out of daily quota, overloaded or gone.
+        # Free-tier quotas are per model, so this multiplies free daily calls.
+        self.fallback_models = fallback_models or []
+
+    def _call_with_fallbacks(self, model: str, contents: list, config: Any) -> tuple[Any, str]:
+        models = [model] + [m for m in self.fallback_models if m != model]
+        last: LLMError | None = None
+        for m in models:
+            try:
+                return self.client.models.generate_content(
+                    model=m, contents=contents, config=config
+                ), m
+            except errors.ClientError as e:
+                if e.code == 429 and _is_daily_quota(e):
+                    log.warning("gemini %s: free-tier daily quota used up, trying next model", m)
+                    last = LLMError(
+                        "Gemini's free daily limit is used up for every configured model. It resets daily; try again tomorrow."
+                    )
+                    continue
+                if e.code == 429:
+                    raise LLMRateLimited(
+                        "Gemini free-tier rate limit reached. Try again in a minute.",
+                        retry_after_s=_retry_delay_s(e),
+                    ) from e
+                if e.code == 404:
+                    log.warning("gemini %s: model not available, trying next model", m)
+                    last = LLMError(f"AI model {m!r} isn't available.")
+                    continue
+                if e.code in (400, 401, 403) and "key" in str(e).lower():
+                    raise LLMError(
+                        "AI review isn't configured (the Gemini API key was rejected)."
+                    ) from e
+                log.warning("gemini client error %s: %s", e.code, e)
+                raise LLMError("The AI review request was rejected.") from e
+            except errors.APIError as e:  # 5xx: overloaded / unavailable
+                log.warning(
+                    "gemini %s: server error %s, trying next model", m, getattr(e, "code", "")
+                )
+                last = LLMError("AI review is temporarily unavailable.")
+                continue
+            except Exception as e:  # network/transport errors from the SDK's HTTP layer
+                log.warning("gemini transport error: %r", e)
+                raise LLMError("AI review is temporarily unavailable.") from e
+        raise last or LLMError("AI review is temporarily unavailable.")
 
     def generate(
         self,
@@ -83,30 +138,7 @@ class GeminiProvider:
             )
             for t in turns
         ]
-        try:
-            resp = self.client.models.generate_content(
-                model=model, contents=contents, config=config
-            )
-        except errors.ClientError as e:
-            if e.code == 429:
-                raise LLMRateLimited(
-                    "Gemini free-tier rate limit reached. Try again in a minute.",
-                    retry_after_s=_retry_delay_s(e),
-                ) from e
-            if e.code == 404:
-                raise LLMError(f"AI model {model!r} isn't available.") from e
-            if e.code in (400, 401, 403) and "key" in str(e).lower():
-                raise LLMError(
-                    "AI review isn't configured (the Gemini API key was rejected)."
-                ) from e
-            log.warning("gemini client error %s: %s", e.code, e)
-            raise LLMError("The AI review request was rejected.") from e
-        except errors.APIError as e:
-            raise LLMError("AI review is temporarily unavailable.") from e
-        except Exception as e:  # network/transport errors from the SDK's HTTP layer
-            log.warning("gemini transport error: %r", e)
-            raise LLMError("AI review is temporarily unavailable.") from e
-
+        resp, used = self._call_with_fallbacks(model, contents, config)
         meta = resp.usage_metadata
         prompt = (getattr(meta, "prompt_token_count", 0) or 0) if meta else 0
         cached = (getattr(meta, "cached_content_token_count", 0) or 0) if meta else 0
@@ -117,7 +149,7 @@ class GeminiProvider:
         )
 
         if _is_refusal(resp):
-            return Reply(output=None, raw_text="", usage=usage, refused=True)
+            return Reply(output=None, raw_text="", usage=usage, refused=True, model=used)
         try:
             text = resp.text or ""
         except (ValueError, AttributeError):  # no usable candidates

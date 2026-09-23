@@ -49,6 +49,8 @@ class Reply:
     raw_text: str
     usage: Usage = field(default_factory=Usage)
     refused: bool = False
+    # The model that actually answered, when a provider fell back to another.
+    model: str | None = None
 
 
 class Provider(Protocol):

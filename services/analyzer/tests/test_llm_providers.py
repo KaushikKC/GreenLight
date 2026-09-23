@@ -222,3 +222,96 @@ class TestReplay:
         monkeypatch.setattr(s, "llm_replay_dir", str(tmp_path / "missing"))
         with pytest.raises(LLMError, match="LLM_REPLAY_DIR"):
             provider_from_settings()
+
+
+DAILY = {
+    "error": {
+        "message": "quota",
+        "status": "RESOURCE_EXHAUSTED",
+        "details": [{"quotaId": "GenerateRequestsPerDayPerProjectPerModel-FreeTier"}],
+    }
+}
+
+
+class TestGeminiFallbacks:
+    def provider(self, *responses):
+        fake = FakeGenai(*responses)
+        return fake, GeminiProvider(fake, vision_model="a", fallback_models=["b", "c"])
+
+    def test_daily_quota_falls_back_to_next_model(self):
+        fake, p = self.provider(
+            errors.ClientError(429, DAILY), genai_response('{"inner": {"x": 1}}')
+        )
+        r = p.generate(
+            model="a",
+            system="s",
+            turns=TURNS,
+            schema=SCHEMA,
+            name="rec",
+            description="d",
+            max_tokens=10,
+        )
+        assert [req["model"] for req in fake.requests] == ["a", "b"]
+        assert r.model == "b" and r.output == {"inner": {"x": 1}}
+
+    def test_overloaded_and_missing_models_fall_back_too(self):
+        fake, p = self.provider(
+            errors.ServerError(503, {"error": {"message": "busy", "status": "UNAVAILABLE"}}),
+            errors.ClientError(404, {"error": {"message": "gone", "status": "NOT_FOUND"}}),
+            genai_response("{}"),
+        )
+        r = p.generate(
+            model="a",
+            system="s",
+            turns=TURNS,
+            schema=SCHEMA,
+            name="rec",
+            description="d",
+            max_tokens=10,
+        )
+        assert r.model == "c"
+
+    def test_all_models_out_of_daily_quota(self):
+        _, p = self.provider(*(errors.ClientError(429, DAILY) for _ in range(3)))
+        with pytest.raises(LLMError, match="free daily limit") as exc:
+            p.generate(
+                model="a",
+                system="s",
+                turns=TURNS,
+                schema=SCHEMA,
+                name="rec",
+                description="d",
+                max_tokens=10,
+            )
+        from analyzer.llm.errors import LLMRateLimited
+
+        assert not isinstance(exc.value, LLMRateLimited)  # waiting a minute won't help
+
+    def test_per_minute_limit_is_not_a_fallback(self):
+        from analyzer.llm.errors import LLMRateLimited
+
+        per_minute = {"error": {"message": "quota", "status": "RESOURCE_EXHAUSTED"}}
+        fake, p = self.provider(errors.ClientError(429, per_minute))
+        with pytest.raises(LLMRateLimited):
+            p.generate(
+                model="a",
+                system="s",
+                turns=TURNS,
+                schema=SCHEMA,
+                name="rec",
+                description="d",
+                max_tokens=10,
+            )
+        assert len(fake.requests) == 1
+
+
+def test_settings_parse_gemini_model_list(monkeypatch):
+    from analyzer.config import get_settings
+    from analyzer.llm.client import provider_from_settings
+
+    s = get_settings()
+    monkeypatch.setattr(s, "llm_provider", "gemini")
+    monkeypatch.setattr(s, "gemini_api_key", "g-key")
+    monkeypatch.setattr(s, "gemini_model_vision", "m1, m2 ,m3")
+    p = provider_from_settings()
+    assert p.vision_model == "m1" and p.fallback_models == ["m2", "m3"]
