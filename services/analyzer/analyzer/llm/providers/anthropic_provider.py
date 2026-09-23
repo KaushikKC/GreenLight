@@ -12,7 +12,7 @@ import anthropic
 
 from analyzer.llm.errors import LLMError
 from analyzer.llm.pricing import cost_usd
-from analyzer.llm.types import Document, Image, Part, Reply, Text, Turn, Usage
+from analyzer.llm.types import Document, Part, Reply, Text, Turn, Usage
 
 
 def _block(part: Part) -> dict[str, Any]:
