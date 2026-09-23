@@ -175,3 +175,31 @@ def test_documents_are_sent_natively():
         max_tokens=10,
     )
     assert fake_g.requests[0]["contents"][0].parts[0].inline_data.mime_type == "application/pdf"
+
+
+class TestReplay:
+    def test_serves_saved_json_for_the_output_name(self, tmp_path):
+        from analyzer.llm.providers.replay_provider import ReplayProvider
+
+        (tmp_path / "rec.json").write_text('{"inner": {"x": 7}}')
+        r = gen(ReplayProvider(tmp_path))
+        assert r.output == {"inner": {"x": 7}}
+        assert ReplayProvider(tmp_path).cost_usd("replay", r.usage) == 0.0
+
+    def test_missing_answer_is_an_llm_error(self, tmp_path):
+        from analyzer.llm.providers.replay_provider import ReplayProvider
+
+        with pytest.raises(LLMError, match="No saved AI answer"):
+            gen(ReplayProvider(tmp_path))
+
+    def test_selected_by_settings(self, tmp_path, monkeypatch):
+        from analyzer.config import get_settings
+        from analyzer.llm.client import provider_from_settings
+
+        s = get_settings()
+        monkeypatch.setattr(s, "llm_provider", "replay")
+        monkeypatch.setattr(s, "llm_replay_dir", str(tmp_path))
+        assert provider_from_settings().name == "replay"
+        monkeypatch.setattr(s, "llm_replay_dir", str(tmp_path / "missing"))
+        with pytest.raises(LLMError, match="LLM_REPLAY_DIR"):
+            provider_from_settings()
