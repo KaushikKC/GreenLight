@@ -1,0 +1,10 @@
+{
+  "groups": [
+    {"canonical": "CeraVe", "variants": ["CeraVe"]},
+    {"canonical": "Glossier", "variants": ["Glossier"]},
+    {"canonical": "Glow Serum", "variants": ["Glow Serum"]},
+    {"canonical": "Gymshark", "variants": ["Gymshark"]},
+    {"canonical": "Oatly", "variants": ["Oatly"]},
+    {"canonical": "The Ordinary", "variants": ["The Ordinary"]}
+  ]
+}

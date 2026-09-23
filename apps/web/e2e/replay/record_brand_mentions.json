@@ -1,0 +1,13 @@
+{
+  "mentions": [
+    {"post": 1, "brand_raw": "@glowserum", "product": null, "modality": "caption", "sentiment": 0.8, "is_sponsored": true, "evidence": "#gifted thank you @glowserum for the PR box", "confidence": 0.95},
+    {"post": 2, "brand_raw": "Glossier", "product": "balm", "modality": "caption", "sentiment": -0.4, "is_sponsored": false, "evidence": "not sure about the new Glossier balm tbh, too sticky for me", "confidence": 0.9},
+    {"post": 3, "brand_raw": "CeraVe", "product": "SA cleanser", "modality": "caption", "sentiment": 0.6, "is_sponsored": false, "evidence": "CeraVe SA cleanser", "confidence": 0.9},
+    {"post": 4, "brand_raw": "The Ordinary", "product": "niacinamide", "modality": "caption", "sentiment": 1, "is_sponsored": false, "evidence": "finished my 4th bottle of The Ordinary niacinamide. repurchase forever", "confidence": 0.95},
+    {"post": 5, "brand_raw": "Glow Serum", "product": "drops", "modality": "caption", "sentiment": 0.9, "is_sponsored": true, "evidence": "#ad loving the new Glow Serum drops", "confidence": 0.95},
+    {"post": 6, "brand_raw": "#gymshark", "product": "leggings", "modality": "caption", "sentiment": 0.8, "is_sponsored": false, "evidence": "#gymshark leggings still going strong after 2 years", "confidence": 0.9},
+    {"post": 7, "brand_raw": "@oatly", "product": "barista", "modality": "caption", "sentiment": 0.9, "is_sponsored": false, "evidence": "@oatly barista is the only oat milk that foams properly", "confidence": 0.9},
+    {"post": 8, "brand_raw": "@theordinary", "product": "niacinamide", "modality": "caption", "sentiment": 0.9, "is_sponsored": false, "evidence": "@theordinary niacinamide", "confidence": 0.95},
+    {"post": 8, "brand_raw": "cerave", "product": "moisturiser", "modality": "caption", "sentiment": 0.9, "is_sponsored": false, "evidence": "cerave moisturiser", "confidence": 0.9}
+  ]
+}
