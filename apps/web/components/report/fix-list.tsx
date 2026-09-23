@@ -31,15 +31,20 @@ export function FixList({ items, onSeek }: { items: FixItem[]; onSeek?: (t: numb
     .join("\n");
 
   return (
-    <section className="rounded-3xl border bg-card p-5" aria-labelledby="fix-heading" data-testid="fix-list">
+    <section
+      className="pop rounded-[2rem] bg-card p-5"
+      style={{ "--pop": "var(--tangerine)" } as React.CSSProperties}
+      aria-labelledby="fix-heading"
+      data-testid="fix-list"
+    >
       <div className="flex items-center justify-between gap-3">
-        <h2 id="fix-heading" className="text-xl font-semibold">
-          Fix list
+        <h2 id="fix-heading" className="text-2xl font-extrabold">
+          Fix list 🛠️
         </h2>
         <button
           type="button"
           onClick={() => copyItem("all", all)}
-          className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium"
+          className="pop-sm pop-press inline-flex items-center gap-1.5 rounded-full bg-sun px-3 py-1.5 text-sm font-bold text-on-color"
         >
           {copied === "all" ? <Check className="size-4 text-go" /> : <Copy className="size-4" />}
           {copied === "all" ? "Copied" : "Copy all"}
@@ -50,8 +55,8 @@ export function FixList({ items, onSeek }: { items: FixItem[]; onSeek?: (t: numb
         {items.map((i) => (
           <li key={i.n} className="flex items-start gap-3" data-testid="fix-item">
             <span
-              className={`flex size-7 shrink-0 items-center justify-center rounded-full font-mono text-sm font-semibold ${
-                i.status === "fail" ? "bg-stop text-paper" : "bg-wait text-on-color"
+              className={`flex size-8 shrink-0 items-center justify-center rounded-full border-2 border-ink font-display text-sm font-extrabold text-on-color ${
+                i.status === "fail" ? "bg-pink" : "bg-sun"
               }`}
             >
               {i.n}

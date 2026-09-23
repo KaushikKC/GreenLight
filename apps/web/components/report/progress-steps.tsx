@@ -13,18 +13,23 @@ export function ProgressSteps({ steps }: { steps: ProgressStep[] | undefined }) 
   const done = steps?.filter((s) => s.status === "done" || s.status === "error").length ?? 0;
   const total = steps?.length ?? 0;
   return (
-    <section className="rounded-3xl border bg-card p-5" data-testid="progress" aria-live="polite">
+    <section
+      className="pop rounded-[2rem] bg-card p-5"
+      style={{ "--pop": "var(--lime)" } as React.CSSProperties}
+      data-testid="progress"
+      aria-live="polite"
+    >
       <div className="flex items-baseline justify-between">
-        <h2 className="text-lg font-semibold">Checking your draft</h2>
+        <h2 className="text-xl font-extrabold">Checking your draft ✨</h2>
         {total > 0 && (
           <span className="font-mono text-xs text-muted-foreground">
             {done}/{total}
           </span>
         )}
       </div>
-      <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-muted">
+      <div className="mt-3 h-3 overflow-hidden rounded-full border-2 border-ink bg-muted">
         <div
-          className="h-full rounded-full bg-go transition-[width] duration-500"
+          className="h-full rounded-full bg-[linear-gradient(90deg,var(--lime),var(--sky),var(--violet))] transition-[width] duration-500"
           style={{ width: total ? `${(done / total) * 100}%` : "8%" }}
         />
       </div>

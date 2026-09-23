@@ -5,6 +5,8 @@ import type { Check } from "@/lib/report-types";
 
 import { EstimateBadge, StatusIcon } from "./status";
 
+const GROUP_COLORS = ["var(--lime)", "var(--sky)", "var(--violet)", "var(--pink)", "var(--sun)", "var(--tangerine)", "var(--lime)"];
+
 function quoteOf(evidence: Check["evidence"]): string | null {
   for (const key of ["quote", "text", "opening_line"] as const) {
     const v = evidence[key];
@@ -54,7 +56,7 @@ function CheckRow({ check, onSeek }: { check: Check; onSeek?: (t: number) => voi
           {frameUrl && <FrameEvidence url={frameUrl} box={check.evidence.box} />}
         </div>
         {check.fix && (check.status === "fail" || check.status === "warn") && (
-          <p className="rounded-xl bg-highlight/25 px-3 py-2 text-sm">
+          <p className="rounded-2xl border-2 border-dashed border-lime bg-lime-soft px-3 py-2 text-sm">
             <span className="font-semibold">Fix: </span>
             {check.fix}
           </p>
@@ -78,18 +80,26 @@ function CheckRow({ check, onSeek }: { check: Check; onSeek?: (t: number) => voi
 export function Checklist({ checks, onSeek }: { checks: Check[]; onSeek?: (t: number) => void }) {
   return (
     <section className="flex flex-col gap-3" aria-labelledby="checklist-heading">
-      <h2 id="checklist-heading" className="text-xl font-semibold">
+      <h2 id="checklist-heading" className="text-2xl font-extrabold">
         Full checklist
       </h2>
-      {groupChecks(checks).map((g) => (
+      {groupChecks(checks).map((g, i) => (
         <details
           key={g.group}
           open={g.issues > 0}
-          className="group rounded-2xl border bg-card px-4"
+          className="pop-sm group rounded-3xl bg-card px-4"
+          style={{ "--pop": GROUP_COLORS[i % GROUP_COLORS.length] } as React.CSSProperties}
           data-testid="check-group"
         >
           <summary className="flex cursor-pointer list-none items-center justify-between py-4">
-            <span className="font-display text-lg font-semibold">{g.label}</span>
+            <span className="flex items-center gap-2 font-display text-lg font-bold">
+              <span
+                className="size-3 rounded-full border-2 border-ink"
+                style={{ background: GROUP_COLORS[i % GROUP_COLORS.length] }}
+                aria-hidden
+              />
+              {g.label}
+            </span>
             <span className="flex items-center gap-2">
               <span
                 className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
