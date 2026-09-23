@@ -15,6 +15,13 @@
       "when": 1790166401239,
       "tag": "0001_preflight_share_and_parent",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1790168805957,
+      "tag": "0002_rights_wallet",
+      "breakpoints": true
     }
   ]
 }
