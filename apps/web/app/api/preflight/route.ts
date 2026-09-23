@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { createPreflight, getPreflightForUser } from "@/lib/preflight";
 import { createPreflightInput, ownsKey } from "@/lib/preflight-schema";
+import { checkLimit, limitResponse } from "@/lib/limits-server";
 import { uploadLimits } from "@/lib/rules";
 import { getOrCreateUserId } from "@/lib/session";
 import { objectSize } from "@/lib/storage";
@@ -40,6 +41,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "parent_not_found" }, { status: 404 });
     }
   }
+
+  const limit = await checkLimit(userId, "preflights");
+  if (!limit.ok) return limitResponse(limit);
 
   const preflight = await createPreflight(userId, parsed.data, size);
   return NextResponse.json({ id: preflight.id }, { status: 201 });

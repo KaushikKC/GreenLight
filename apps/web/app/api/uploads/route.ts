@@ -3,6 +3,7 @@ import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 
 import { uploadRequest, videoKey } from "@/lib/preflight-schema";
+import { checkLimit, limitResponse } from "@/lib/limits-server";
 import { uploadLimits } from "@/lib/rules";
 import { getOrCreateUserId } from "@/lib/session";
 import { presignUpload } from "@/lib/storage";
@@ -32,6 +33,8 @@ export async function POST(request: Request) {
   }
 
   const userId = await getOrCreateUserId();
+  const limit = await checkLimit(userId, "preflights");
+  if (!limit.ok) return limitResponse(limit);
   const key = videoKey(userId, randomUUID(), parsed.data.contentType);
   const url = await presignUpload(key, parsed.data.contentType);
   return NextResponse.json({ key, url });
