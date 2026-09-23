@@ -22,6 +22,13 @@
       "when": 1790168805957,
       "tag": "0002_rights_wallet",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1790178647192,
+      "tag": "0003_brands",
+      "breakpoints": true
     }
   ]
 }
