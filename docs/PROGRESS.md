@@ -1,5 +1,30 @@
 # Progress
 
+## Phase 4: Rights Wallet ✅ (2026-09-23)
+
+### Done
+- **Add a contract** (`/rights/new`): upload PDF/DOCX (presigned, 20 MB) or paste text/deal email.
+- **Extraction job** (`jobs/contract.py`): pdfplumber / python-docx / pasted text; scanned PDFs (almost no text) go to the model as a document. Prompt `contract_v1.md`, output `record_contract_terms`: every term has `source_quote` + `confidence`; deliverables, usage (organic/paid, platforms, territories, perpetual), whitelisting, exclusivity (category mapped to `rules/categories.json`), revisions, raw files, termination, kill fee, red flags. Relative periods keep `duration_text` with **no** start date. Deterministic red flags (`rules/contracts.json`: net > 60 days, perpetual, worldwide paid, exclusivity > usage, unlimited revisions) back up the model's.
+- **Review** (`/rights/[id]/review`): side-by-side on desktop, Terms/Contract tabs on phones; every field and red flag has **Source**, which highlights the exact wording in the contract (whitespace/case/curly-quote tolerant). Everything is editable; windows without a real start date block saving ("1 date to fill in"); entering a start fills the end from the contract's wording (e.g. +90 days). Payment due is estimated (last deliverable + net days) and labelled.
+- **Confirm** → `deals` + `rights_windows` in one transaction.
+- **Wallet** (`/rights`): alerts (overdue / due-soon payments with **Mark paid**, windows ending within 14 days, exclusivity clashes between deals), Gantt **timeline** with a today line (perpetual bars run off the edge), **"Can I take this deal?"** checker, deals list, **Export .ics** (all-day events for every end date and unpaid payment, 3-day reminders).
+- **`lib/rights.ts`** (unit-tested): `activeWindows`, `expiringWithin`, `overduePayments`, `paymentsDueSoon`, `exclusivityConflicts`, `dealConflicts`, `normalizeCategory`, `parseDuration`/`suggestEnd`, `buildAlerts`, `toIcs`, `formatDate`.
+- **Disclaimer** footer on every Rights page: "Greenlight organises your contracts; it isn't legal advice."
+- **LLM plumbing:** `Document` parts (PDF) for both providers; **replay provider** (`LLM_PROVIDER=replay`) for keyless e2e/demo; **Gemini model fallbacks** (`GEMINI_MODEL_VISION` is a comma list); per-day quota → next model, per-minute limits → `RetryLater` with Google's suggested delay (min 30s); SDK no longer auto-retries 429s.
+- **Schema:** migration `0002` (contract `error` status + `filename`, `deals.category`, `rights_windows.scope` + `duration_text`).
+- **Tests:** 76 vitest, 218 pytest (text extraction, terms schema, red flags, contract job on Postgres with replay, rate-limit retries, fallbacks), 2 Playwright flows (`make e2e`): Preflight + Rights (paste → sources → date the relative window → wallet → mark paid → checker → .ics).
+- ✅ Live Gemini run on the sample contract (served by `gemini-3.5-flash-lite` after two 503s): all key terms right, 6/6 red flags, 21/21 quotes verbatim; relative whitelisting left undated.
+
+### Next: Phase 5 (Brands You Already Love)
+
+### Known issues / decisions
+- **Gemini free tier = ~20 requests/day per model.** Fallback list spreads that across 3 models. The live extraction merged the two Reels into one line and added "worldwide" to organic usage; the review step is where the creator fixes these.
+- "Can I take this deal?" uses the category list (no LLM call); free text in contracts is mapped by the model at extraction time.
+- Scanned-PDF path is unit-tested per provider but not yet run live.
+- Dates are UTC calendar dates; "today" is server UTC.
+- Dev server note: after many edits `next dev` can loop on a stale HMR cache; `rm -rf apps/web/.next/dev` and restart.
+
+
 ## Phase 3: Preflight UI ✅ (2026-09-23)
 
 ### Done
