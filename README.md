@@ -47,11 +47,15 @@ Every flag shows **evidence** (a timestamp, frame, quote or contract clause) and
 `services/analyzer/evals/` holds synthetic golden sets: 18 generated clips with expected check statuses, 8 contracts with expected fields and planted red flags, and 50 labelled captions. Run them with `make eval` (Preflight, free) or `make eval SUITE=all` (uses the LLM). Latest results are in [`services/analyzer/evals/results/`](services/analyzer/evals/results/).
 
 <!-- eval-table:start -->
+Latest run: 2026-09-23, Gemini free tier (`gemini-3.5-flash` → fallbacks after its daily quota ran out; `gemini-3.5-flash-lite` for brand mentions). Cost $0 on the free tier.
+
 | Suite | Headline | Detail |
 |---|---|---|
-| Preflight (18 clips, AI off) | 100% status accuracy | 37 labelled checks · flagged precision 100% · recall 100% · p50 4.0s/clip |
-| Contracts (8) | _pending_ | |
-| Brands (50 captions) | _pending_ | |
+| Preflight (18 clips, AI off) | **100%** status accuracy | 37 labelled checks · flagged precision 100% · recall 100% · p50 3.9s per clip |
+| Contracts (8) | **97%** field accuracy | red flags: precision 84% · recall 100% · p50 16s per contract (p95 92s with overloaded-model fallbacks) |
+| Brands (50 captions) | **100%** mention precision / recall | 48 labelled mentions · sponsorship accuracy 100% · 6 LLM calls |
+
+Contract misses worth fixing next: "no kill fee" flagged on deals that simply don't mention cancellation, "late payment" flagged for net 60 (the rule is *more than* 60), an email's date taken as the signing date, and a gifted product's value read as a fee.
 <!-- eval-table:end -->
 
 The golden sets are synthetic, so real footage and real contracts will be harder. Building the sets surfaced a real bug: VAD mistook music for speech. The music check now counts "speech" that Whisper can't transcribe as music.
