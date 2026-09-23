@@ -20,7 +20,12 @@ def test_fixture_is_valid():
 
 def test_derives_late_payment_perpetual_worldwide_and_unlimited_revisions():
     types = {f.type for f in derive_red_flags(terms())}
-    assert {"late_payment", "perpetual_usage", "worldwide_paid_usage", "unlimited_revisions"} <= types
+    assert {
+        "late_payment",
+        "perpetual_usage",
+        "worldwide_paid_usage",
+        "unlimited_revisions",
+    } <= types
 
 
 def test_derived_flags_quote_the_contract():
@@ -42,7 +47,9 @@ def test_no_exclusivity_flag_when_usage_is_perpetual():
 def test_payment_within_threshold_is_fine():
     data = json.loads(FIXTURE.read_text())
     data["payment_terms"]["net_days"] = 30
-    assert not any(f.type == "late_payment" for f in derive_red_flags(ContractTerms.model_validate(data)))
+    assert not any(
+        f.type == "late_payment" for f in derive_red_flags(ContractTerms.model_validate(data))
+    )
 
 
 def test_merge_keeps_llm_flags_and_adds_only_new_types():
