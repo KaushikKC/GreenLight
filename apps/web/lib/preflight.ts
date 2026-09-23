@@ -133,13 +133,30 @@ async function signFrames(artifacts: Json | null): Promise<ReportFrame[]> {
   );
 }
 
-async function videoUrl(videoId: string): Promise<string | null> {
+async function videoInfo(videoId: string): Promise<{ url: string | null; deleted: boolean }> {
   const [video] = await db
-    .select({ key: schema.videos.storageKey })
+    .select({ key: schema.videos.storageKey, deletedAt: schema.videos.deletedAt })
     .from(schema.videos)
     .where(eq(schema.videos.id, videoId))
     .limit(1);
-  return video ? presignRead(video.key) : null;
+  if (!video) return { url: null, deleted: false };
+  if (video.deletedAt) return { url: null, deleted: true };
+  return { url: await presignRead(video.key), deleted: false };
+}
+
+/** After the 7-day auto-delete, frames are gone too: drop their links. */
+function withoutFrames(report: Report | null): Report | null {
+  if (!report?.checks) return report;
+  return {
+    ...report,
+    checks: report.checks.map((c) => {
+      if (typeof c.evidence.frame_key !== "string") return c;
+      const evidence = Object.fromEntries(
+        Object.entries(c.evidence).filter(([k]) => k !== "frame_key"),
+      );
+      return { ...c, evidence };
+    }),
+  };
 }
 
 async function parentSummary(p: Preflight) {
@@ -172,6 +189,8 @@ export type PreflightDto = {
   report: Report | null;
   frames: ReportFrame[];
   videoUrl: string | null;
+  /** The video and frames were removed after 7 days; the report text remains. */
+  mediaDeleted: boolean;
   safeZones: { regions: Region[]; minOverlap: number };
   parent: Awaited<ReturnType<typeof parentSummary>>;
   shared: boolean;
@@ -179,10 +198,12 @@ export type PreflightDto = {
 };
 
 export async function toPreflightDto(p: Preflight): Promise<PreflightDto> {
-  const [report, frames, video, parent] = await Promise.all([
-    signReport(p.report as Json | null),
-    signFrames(p.artifacts as Json | null),
-    videoUrl(p.videoId),
+  const video = await videoInfo(p.videoId);
+  const [report, frames, parent] = await Promise.all([
+    video.deleted
+      ? withoutFrames(p.report as Report | null)
+      : signReport(p.report as Json | null),
+    video.deleted ? [] : signFrames(p.artifacts as Json | null),
     parentSummary(p),
   ]);
   return {
@@ -194,7 +215,8 @@ export async function toPreflightDto(p: Preflight): Promise<PreflightDto> {
     verdict: p.verdict,
     report,
     frames,
-    videoUrl: video,
+    videoUrl: video.url,
+    mediaDeleted: video.deleted,
     safeZones: safeZones(p.platform),
     parent,
     shared: p.shareToken !== null,
