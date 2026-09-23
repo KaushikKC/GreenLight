@@ -179,6 +179,12 @@
   html {
     @apply font-sans;
   }
+  /* Decorative glows and tilted strips may poke past the edges; never let
+     them cause sideways scrolling. `clip` (unlike `hidden`) keeps sticky working. */
+  html,
+  body {
+    overflow-x: clip;
+  }
   h1,
   h2,
   h3 {
