@@ -45,16 +45,31 @@ export function EstimateBadge() {
   );
 }
 
-export const VERDICT_STYLES: Record<Verdict, { chip: string; ring: string }> = {
-  ready: { chip: "bg-go text-paper", ring: "stroke-go" },
-  fix_first: { chip: "bg-wait text-on-color", ring: "stroke-wait" },
-  not_ready: { chip: "bg-stop text-paper", ring: "stroke-stop" },
+export const VERDICT_STYLES: Record<Verdict, { chip: string; ring: string; card: string; emoji: string }> = {
+  ready: {
+    chip: "bg-lime text-on-color",
+    ring: "stroke-[var(--on-color)]",
+    card: "bg-[linear-gradient(135deg,var(--lime),var(--sky))]",
+    emoji: "🟢",
+  },
+  fix_first: {
+    chip: "bg-sun text-on-color",
+    ring: "stroke-[var(--on-color)]",
+    card: "bg-[linear-gradient(135deg,var(--sun),var(--tangerine))]",
+    emoji: "🟡",
+  },
+  not_ready: {
+    chip: "bg-pink text-on-color",
+    ring: "stroke-[var(--on-color)]",
+    card: "bg-[linear-gradient(135deg,var(--pink),var(--tangerine))]",
+    emoji: "🔴",
+  },
 };
 
 export function VerdictChip({ verdict }: { verdict: Verdict }) {
   return (
     <span
-      className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-semibold ${VERDICT_STYLES[verdict].chip}`}
+      className={`sticker text-sm ${VERDICT_STYLES[verdict].chip}`}
       data-testid="verdict"
     >
       {VERDICT_LABELS[verdict]}
