@@ -55,7 +55,7 @@ def provider_from_settings() -> Provider:
         from analyzer.llm.providers.anthropic_provider import AnthropicProvider
 
         client = anthropic.Anthropic(api_key=s.anthropic_api_key, timeout=s.llm_timeout_s)
-        return AnthropicProvider(client, vision_model=s.model_vision)
+        return AnthropicProvider(client, vision_model=s.model_vision, fast_model=s.model_fast)
 
     if choice == "gemini":
         if not s.gemini_api_key:
@@ -77,13 +77,19 @@ def provider_from_settings() -> Provider:
                 ),
             ),
         )
-        # GEMINI_MODEL_VISION may be a comma-separated fallback list.
-        models = [m.strip() for m in (s.gemini_model_vision or "").split(",") if m.strip()]
+
+        # GEMINI_MODEL_VISION / _FAST may be comma-separated fallback lists.
+        def models(v: str | None) -> list[str]:
+            return [m.strip() for m in (v or "").split(",") if m.strip()]
+
+        vision, fast = models(s.gemini_model_vision), models(s.gemini_model_fast)
         return GeminiProvider(
             client,
-            vision_model=models[0] if models else None,
+            vision_model=vision[0] if vision else None,
+            fast_model=fast[0] if fast else (vision[0] if vision else None),
             free_tier=s.gemini_free_tier,
-            fallback_models=models[1:],
+            # Any model can stand in for another when quota runs out.
+            fallback_models=list(dict.fromkeys(vision[1:] + fast[1:] + vision[:1] + fast[:1])),
         )
 
     if choice == "replay":
@@ -155,6 +161,7 @@ class LLM:
         description: str,
         model: str | None = None,
         max_tokens: int = 16000,
+        validation_context: dict[str, Any] | None = None,
     ) -> ToolResult[T]:
         model = model or self.provider.vision_model
         if not model:
@@ -191,7 +198,7 @@ class LLM:
                 )
             else:
                 try:
-                    parsed = output.model_validate(reply.output)
+                    parsed = output.model_validate(reply.output, context=validation_context)
                 except ValidationError as e:
                     problem = f"Your {name} answer was invalid: {e}. Return it again with corrected values."
                 else:

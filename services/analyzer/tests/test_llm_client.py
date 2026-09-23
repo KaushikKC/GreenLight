@@ -154,3 +154,28 @@ def test_logs_the_model_that_actually_answered():
     result = call(llm)
     assert result.model == "backup-model"
     assert llm.calls[0]["model"] == "backup-model"
+
+
+def test_validation_context_reaches_the_output_model():
+    from pydantic import ValidationInfo, model_validator
+
+    class Checked(BaseModel):
+        value: str
+
+        @model_validator(mode="after")
+        def _allowed(self, info: ValidationInfo):
+            if self.value not in (info.context or {}).get("allowed", set()):
+                raise ValueError("not allowed")
+            return self
+
+    fake = FakeProvider(reply({"value": "b"}), reply({"value": "a"}))
+    result = LLM(provider=fake).structured(
+        purpose="t",
+        system="s",
+        parts=[Text("x")],
+        output=Checked,
+        name="n",
+        description="d",
+        validation_context={"allowed": {"a"}},
+    )
+    assert result.output.value == "a" and result.attempts == 2
