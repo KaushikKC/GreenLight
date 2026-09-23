@@ -1,0 +1,8 @@
+{
+  "_note": "Thresholds for Rights Wallet red flags and alerts. Not legal advice; tune to taste.",
+  "late_payment_days": 60,
+  "expiring_alert_days": 14,
+  "payment_due_soon_days": 7,
+  "worldwide_terms": ["worldwide", "global", "globally", "all territories", "throughout the world"],
+  "unlimited_revision_terms": ["unlimited", "until approved", "until brand approves", "all revisions"]
+}
