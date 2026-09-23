@@ -34,7 +34,7 @@ export default async function BrandsPage() {
           </p>
         </header>
 
-        <ScanStatusBar initial={status} />
+        <ScanStatusBar key={`${status.state}-${status.unscanned}-${status.posts}`} initial={status} />
         <ImportPanel open={status.posts === 0} />
         <ProfileCard initial={profile} />
 

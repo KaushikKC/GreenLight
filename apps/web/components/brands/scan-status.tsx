@@ -8,13 +8,14 @@ import type { ScanStatus } from "@/lib/brands-server";
 
 const POLL_MS = 2500;
 
-/** Shows scan progress and refreshes the page when the scan finishes. */
+/**
+ * Shows scan progress and refreshes the page when the scan finishes.
+ * The page keys this on the server status, so fresh data remounts it.
+ */
 export function ScanStatusBar({ initial }: { initial: ScanStatus }) {
   const router = useRouter();
   const [status, setStatus] = useState(initial);
   const scanning = status.state === "scanning";
-
-  useEffect(() => setStatus(initial), [initial]);
 
   useEffect(() => {
     if (!scanning) return;
