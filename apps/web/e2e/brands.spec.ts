@@ -10,7 +10,7 @@ test("import posts → ranked brands → past partners → grounded pitch", asyn
 
   // Profile without followers: the pitch must not mention any.
   await page.getByTestId("profile-card").locator("summary").click();
-  await page.getByPlaceholder("@you").fill("@maya");
+  await page.getByPlaceholder("@you", { exact: true }).fill("@maya");
   await page.getByPlaceholder("e.g. honest skincare routines").fill("honest skincare routines");
   await page.getByRole("button", { name: "Save" }).click();
   await expect(page.getByRole("button", { name: "Saved" })).toBeVisible();
