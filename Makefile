@@ -1,7 +1,7 @@
 # Greenlight dev commands. Requires: Docker, Node 24 (see .nvmrc), pnpm via corepack, uv.
 
 ANALYZER := services/analyzer
-SUITE ?= all
+SUITE ?= preflight
 
 .PHONY: dev infra infra-down migrate web worker test test-web test-analyzer e2e eval install lint
 
@@ -49,6 +49,7 @@ lint:
 	pnpm --filter web typecheck
 	cd $(ANALYZER) && uv run ruff check .
 
+## Eval suites. Default is the free preflight suite; SUITE=contracts|brands|all use the LLM.
 eval:
 	@if [ -f $(ANALYZER)/evals/run.py ]; then \
 	  cd $(ANALYZER) && uv run python -m evals.run --suite $(SUITE); \
