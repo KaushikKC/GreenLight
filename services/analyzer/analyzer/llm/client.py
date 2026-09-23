@@ -78,8 +78,17 @@ def provider_from_settings() -> Provider:
             client, vision_model=s.gemini_model_vision, free_tier=s.gemini_free_tier
         )
 
+    if choice == "replay":
+        from pathlib import Path
+
+        from analyzer.llm.providers.replay_provider import ReplayProvider
+
+        if not s.llm_replay_dir or not Path(s.llm_replay_dir).is_dir():
+            raise LLMError("LLM_PROVIDER=replay needs LLM_REPLAY_DIR pointing at a folder.")
+        return ReplayProvider(Path(s.llm_replay_dir))
+
     if choice:
-        raise LLMError(f"Unknown LLM_PROVIDER {choice!r}; use 'anthropic' or 'gemini'.")
+        raise LLMError(f"Unknown LLM_PROVIDER {choice!r}; use 'anthropic', 'gemini' or 'replay'.")
     raise LLMError("AI review isn't configured: set GEMINI_API_KEY (free) or ANTHROPIC_API_KEY.")
 
 
