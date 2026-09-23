@@ -21,6 +21,18 @@
   --color-highlight: var(--highlight);
   --color-ink: var(--ink);
   --color-paper: var(--paper);
+  --color-sun: var(--sun);
+  --color-sun-soft: var(--sun-soft);
+  --color-pink: var(--pink);
+  --color-pink-soft: var(--pink-soft);
+  --color-violet: var(--violet);
+  --color-violet-soft: var(--violet-soft);
+  --color-sky: var(--sky);
+  --color-sky-soft: var(--sky-soft);
+  --color-tangerine: var(--tangerine);
+  --color-tangerine-soft: var(--tangerine-soft);
+  --color-lime: var(--lime);
+  --color-lime-soft: var(--lime-soft);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -64,6 +76,20 @@
  * go = ready/pass, wait = fix first/warn, stop = not ready/fail.
  */
 :root {
+  /* Creator palette: juicy, saturated, and always paired with ink text. */
+  --sun: oklch(0.88 0.17 95);
+  --sun-soft: oklch(0.95 0.07 95);
+  --pink: oklch(0.72 0.19 350);
+  --pink-soft: oklch(0.93 0.05 350);
+  --violet: oklch(0.62 0.2 295);
+  --violet-soft: oklch(0.92 0.05 295);
+  --sky: oklch(0.8 0.12 225);
+  --sky-soft: oklch(0.94 0.04 225);
+  --tangerine: oklch(0.76 0.17 55);
+  --tangerine-soft: oklch(0.94 0.05 55);
+  --lime: oklch(0.88 0.2 125);
+  --lime-soft: oklch(0.95 0.08 125);
+
   --paper: oklch(0.965 0.012 85);
   --ink: oklch(0.2 0.012 85);
   --highlight: oklch(0.9 0.2 125);
@@ -111,6 +137,13 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
+    --sun-soft: oklch(0.34 0.07 95);
+    --pink-soft: oklch(0.32 0.08 350);
+    --violet-soft: oklch(0.3 0.09 295);
+    --sky-soft: oklch(0.32 0.06 225);
+    --tangerine-soft: oklch(0.33 0.07 55);
+    --lime-soft: oklch(0.34 0.08 125);
+
     --paper: oklch(0.17 0.01 85);
     --ink: oklch(0.95 0.012 85);
     --highlight: oklch(0.88 0.2 125);
@@ -149,3 +182,102 @@
     @apply font-display;
   }
 }
+
+/* ------------------------------------------------------------------------- */
+/* Greenlight flourishes                                                       */
+/* ------------------------------------------------------------------------- */
+
+/* Card with an ink outline and a coloured offset shadow: set --pop to tint it. */
+@utility pop {
+  border: 2px solid var(--ink);
+  box-shadow: 5px 5px 0 0 var(--pop, var(--ink));
+}
+@utility pop-sm {
+  border: 2px solid var(--ink);
+  box-shadow: 3px 3px 0 0 var(--pop, var(--ink));
+}
+@utility pop-press {
+  transition: transform 120ms ease, box-shadow 120ms ease;
+  &:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 6px 6px 0 0 var(--pop, var(--ink));
+  }
+  &:active {
+    transform: translate(3px, 3px);
+    box-shadow: 1px 1px 0 0 var(--pop, var(--ink));
+  }
+}
+
+/* Soft colour glows behind heroes. */
+@utility glow {
+  background-image:
+    radial-gradient(40% 50% at 12% 15%, color-mix(in oklch, var(--pink) 45%, transparent), transparent 70%),
+    radial-gradient(35% 45% at 88% 10%, color-mix(in oklch, var(--sun) 55%, transparent), transparent 70%),
+    radial-gradient(45% 55% at 80% 85%, color-mix(in oklch, var(--sky) 45%, transparent), transparent 70%),
+    radial-gradient(40% 50% at 15% 90%, color-mix(in oklch, var(--lime) 45%, transparent), transparent 70%);
+}
+
+/* Multi-colour gradient text for a highlighted word. */
+@utility text-rainbow {
+  background: linear-gradient(90deg, var(--pink), var(--tangerine) 35%, var(--sun) 55%, var(--lime) 75%, var(--sky));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@utility sticker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  border: 2px solid var(--ink);
+  border-radius: 9999px;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--color-ink, #1c1b17);
+  box-shadow: 2px 2px 0 0 var(--ink);
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(var(--tilt, 0deg)); }
+  50% { transform: translateY(-6px) rotate(var(--tilt, 0deg)); }
+}
+@utility animate-float {
+  animation: float 5s ease-in-out infinite;
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+@utility animate-marquee {
+  animation: marquee 28s linear infinite;
+}
+
+@keyframes confetti-fall {
+  0% { transform: translate3d(0, -20px, 0) rotate(0deg); opacity: 1; }
+  100% { transform: translate3d(var(--drift, 0px), 420px, 0) rotate(var(--spin, 540deg)); opacity: 0; }
+}
+@utility animate-confetti {
+  animation: confetti-fall var(--dur, 1.8s) cubic-bezier(0.2, 0.6, 0.4, 1) var(--delay, 0s) forwards;
+}
+
+@keyframes pop-in {
+  0% { transform: scale(0.85); opacity: 0; }
+  70% { transform: scale(1.04); opacity: 1; }
+  100% { transform: scale(1); }
+}
+@utility animate-pop-in {
+  animation: pop-in 420ms cubic-bezier(0.2, 0.8, 0.3, 1.2) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-float,
+  .animate-marquee,
+  .animate-confetti,
+  .animate-pop-in {
+    animation: none;
+  }
+}
+
