@@ -26,7 +26,9 @@ def _iso_or_none(v: str | None) -> str | None:
 
 
 class Sourced(BaseModel):
-    source_quote: str | None = Field(description="Exact words from the contract; null if not stated.")
+    source_quote: str | None = Field(
+        description="Exact words from the contract; null if not stated."
+    )
     confidence: float = Field(ge=0, le=1, description="0..1: how sure you are this is right.")
 
 
@@ -37,7 +39,10 @@ class TextTerm(Sourced):
 class DateTerm(Sourced):
     value: str | None = Field(description="YYYY-MM-DD, only if the contract states the date.")
 
-    _check = field_validator("value")(classmethod(lambda cls, v: _iso_or_none(v)))
+    @field_validator("value")
+    @classmethod
+    def _iso_dates(cls, v: str | None) -> str | None:
+        return _iso_or_none(v)
 
 
 class BoolTerm(Sourced):
@@ -57,9 +62,14 @@ class PaymentTerms(Sourced):
 class Dated(Sourced):
     start: str | None = Field(description="YYYY-MM-DD, only if stated or directly computable.")
     end: str | None = Field(description="YYYY-MM-DD, only if stated or directly computable.")
-    duration_text: str | None = Field(description="The duration as worded, e.g. '90 days from first post'.")
+    duration_text: str | None = Field(
+        description="The duration as worded, e.g. '90 days from first post'."
+    )
 
-    _check = field_validator("start", "end")(classmethod(lambda cls, v: _iso_or_none(v)))
+    @field_validator("start", "end")
+    @classmethod
+    def _iso_dates(cls, v: str | None) -> str | None:
+        return _iso_or_none(v)
 
 
 class Deliverable(Sourced):
@@ -68,7 +78,10 @@ class Deliverable(Sourced):
     count: int | None
     due_date: str | None = Field(description="YYYY-MM-DD if stated.")
 
-    _check = field_validator("due_date")(classmethod(lambda cls, v: _iso_or_none(v)))
+    @field_validator("due_date")
+    @classmethod
+    def _iso_dates(cls, v: str | None) -> str | None:
+        return _iso_or_none(v)
 
 
 class UsageRight(Dated):
@@ -109,7 +122,9 @@ class RedFlag(BaseModel):
 
 class ContractTerms(BaseModel):
     brand: TextTerm
-    brand_category_id: CategoryId = Field(description="Category of the brand's product being promoted.")
+    brand_category_id: CategoryId = Field(
+        description="Category of the brand's product being promoted."
+    )
     campaign: TextTerm
     signed_date: DateTerm
     fee: Fee
