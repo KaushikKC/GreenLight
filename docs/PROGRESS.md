@@ -1,5 +1,32 @@
 # Progress
 
+## Phase 6: Evals + hardening ✅ (2026-09-23)
+
+### Evals (`services/analyzer/evals/`, `make eval` / `make eval SUITE=all`)
+- **Preflight golden:** 18 synthetic clips generated from `preflight_golden/cases.json` (OpenCV frames, macOS `say` voices, synthesised music; cached in `.clips/`, versioned by `GENERATOR_VERSION`) with expected status for 37 checks. Runs the real `analyze_video()` pipeline; AI off by default (free), `--llm` to include it.
+- **Contracts golden:** 8 contracts (formal agreements, deal emails, gifting, relative Spark Ads windows, perpetual/AI-likeness, exclusivity outlasting usage, one-sided termination) with expected fields and exact red-flag sets.
+- **Brands golden:** 50 labelled captions (aliases, handles, hashtags, sponsored/gifted/affiliate, negatives, non-brand posts).
+- **Runner** (`python -m evals.run`): per-check precision/recall, contract field accuracy, red-flag and mention P/R, sponsorship accuracy, cost, p50/p95 latency; paces LLM calls for the free tier; merges suites into `evals/results/<date>.md` (+ JSON, git-ignored).
+- **Results 2026-09-23:** Preflight 100% (37/37), Contracts 97% fields · flags P 84% R 100%, Brands P/R 100% · sponsorship 100%. See README.
+- **What the evals caught:** VAD calls tonal music "speech" → `audio.music` now counts VAD speech that Whisper can't transcribe as music, and voice clarity is `na` without words. Also fixed test-data issues (clipping "good" clips; ffmpeg loudnorm misses targets on short clips → gain + limiter; stale clip cache).
+
+### Hardening
+- **Pipeline refactor:** `analyzer/preflight_pipeline.py` (`analyze_video`) shared by the job and the eval runner, with per-step timings stored in artifacts.
+- **Rate limits / guest limits:** `rules/limits.json` (guest vs user tiers; per hour/day for preflights, contracts, posts (by batch size), pitches). `lib/limits.ts` (pure, tested) + `lib/limits-server.ts`; routes return 429 with `Retry-After` and a friendly message the forms already display.
+- **7-day auto-delete:** worker sweeps hourly (`analyzer/cleanup.py`): deletes the video and its frames from storage, sets `videos.deleted_at` (migration `0004`); reports keep their text, drop media links and explain why.
+- **Error states:** app-wide error boundary with retry (Next 16 `retry`), helpful 404 page.
+- **Tests:** 98 vitest, 246 pytest, 3 Playwright flows, all green.
+
+### Next: Phase 7 (bonus MCP server) or Phase 8 (deploy + demo)
+
+### Known issues / decisions
+- Golden sets are synthetic: real footage/contracts will score lower; thresholds marked `TODO_VERIFY` still need real-world tuning.
+- Contract prompt v1 over-flags `no_kill_fee` when cancellation isn't mentioned and treats net-60 as late. Not tuned against the same eval set (to avoid overfitting); next step is a `contract_v2` checked on fresh contracts.
+- Live eval header names the configured model; with free-tier quota exhausted, calls were served by fallback models.
+- Guest creation itself isn't rate-limited (a new browser = a new guest); per-IP limits need a proxy/edge layer in deploy.
+- No "delete my data" button yet (BUILD_PLAN §11).
+
+
 ## Phase 5: Brands You Already Love ✅ (2026-09-23)
 
 ### Done
