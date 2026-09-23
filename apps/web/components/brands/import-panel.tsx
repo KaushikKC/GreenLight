@@ -107,7 +107,11 @@ export function ImportPanel({ open: startOpen }: { open: boolean }) {
               accept=".csv,text/csv"
               className="sr-only"
               aria-label="Posts CSV"
-              onChange={(e) => readFile(e.target.files?.[0])}
+              onChange={(e) => {
+                readFile(e.target.files?.[0]);
+                // Allow picking the same file again later.
+                e.target.value = "";
+              }}
             />
           </label>
         )}
