@@ -19,4 +19,12 @@ class PermanentJobError(Exception):
     """Raise when retrying can't help (bad input, missing row). Skips retries."""
 
 
+class RetryLater(Exception):
+    """Raise to have the worker retry after `delay_s` instead of the default backoff."""
+
+    def __init__(self, message: str, delay_s: float):
+        super().__init__(message)
+        self.delay_s = delay_s
+
+
 Handler = Callable[[Job, psycopg.Connection], None]

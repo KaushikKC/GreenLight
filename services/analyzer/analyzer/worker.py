@@ -13,7 +13,7 @@ import psycopg
 from analyzer import queue
 from analyzer.config import get_settings
 from analyzer.db import connect
-from analyzer.jobs import HANDLERS, Handler, Job, PermanentJobError
+from analyzer.jobs import HANDLERS, Handler, Job, PermanentJobError, RetryLater
 
 log = logging.getLogger("analyzer.worker")
 
@@ -44,6 +44,9 @@ def run_one(
     started = time.monotonic()
     try:
         handler(job, conn)
+    except RetryLater as e:
+        status = queue.fail(conn, job, str(e), max_attempts=max_attempts, delay_s=e.delay_s)
+        log.warning("job %s: retry in %.0fs (%s): %s", job.id, e.delay_s, status, e)
     except PermanentJobError as e:
         queue.fail(conn, job, str(e), max_attempts=max_attempts, permanent=True)
         log.error("job %s: permanent failure: %s", job.id, e)

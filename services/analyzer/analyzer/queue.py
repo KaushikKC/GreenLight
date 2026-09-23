@@ -50,9 +50,16 @@ def backoff_s(attempts: int) -> int:
 
 
 def fail(
-    conn: psycopg.Connection, job: Job, error: str, *, max_attempts: int, permanent: bool = False
+    conn: psycopg.Connection,
+    job: Job,
+    error: str,
+    *,
+    max_attempts: int,
+    permanent: bool = False,
+    delay_s: float | None = None,
 ) -> str:
-    """Record a failure. Re-queues with backoff unless out of attempts. Returns new status."""
+    """Record a failure. Re-queues (after `delay_s`, else backoff) unless out of
+    attempts. Returns the new status."""
     retry = not permanent and job.attempts < max_attempts
     status = "queued" if retry else "error"
     with conn.transaction():
@@ -61,7 +68,12 @@ def fail(
                    run_after = now() + make_interval(secs => %s),
                    updated_at = now()
                 WHERE id = %s""",
-            (status, error[:2000], backoff_s(job.attempts) if retry else 0, job.id),
+            (
+                status,
+                error[:2000],
+                (delay_s if delay_s is not None else backoff_s(job.attempts)) if retry else 0,
+                job.id,
+            ),
         )
     return status
 

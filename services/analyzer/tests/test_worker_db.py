@@ -118,3 +118,17 @@ def test_llm_calls_are_logged_with_cost(jobdb):
     assert (row["input_tokens"], row["output_tokens"]) == (1000, 100)
     assert float(row["cost_usd"]) == pytest.approx(0.003)
     assert row["latency_ms"] is not None
+
+
+def test_retry_later_uses_the_requested_delay(jobdb):
+    from analyzer.jobs import RetryLater
+
+    def slow_down(job, conn):
+        raise RetryLater("test: rate limited", delay_s=120)
+
+    job_id = jobdb.insert(run_after=EARLY)
+    run_one(jobdb.conn, {"noop": slow_down}, max_attempts=3)
+    row = jobdb.get(job_id)
+    assert row["status"] == "queued"
+    wait = (row["run_after"] - datetime.now(UTC)).total_seconds()
+    assert 100 < wait <= 120
