@@ -28,3 +28,4 @@ test-results/
 services/analyzer/evals/results/*.json
 apps/web/test-results/
 apps/web/playwright-report/
+services/analyzer/evals/preflight_golden/.clips/
