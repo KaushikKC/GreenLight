@@ -50,4 +50,7 @@ def test_merge_keeps_llm_flags_and_adds_only_new_types():
     merged = merge_red_flags(t.red_flags, derive_red_flags(t))
     types = [f.type for f in merged]
     assert types[:2] == ["ai_likeness", "raw_footage"]
-    assert len(types) == len(set(types)) or types.count("perpetual_usage") == 1
+    assert "late_payment" in types  # added from derived
+    # a type the LLM already raised is not added again
+    llm_dupe = merge_red_flags(t.red_flags, [t.red_flags[0]])
+    assert [f.type for f in llm_dupe].count("ai_likeness") == 1
