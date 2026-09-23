@@ -21,6 +21,8 @@ CASES = HERE / "cases.json"
 CACHE = HERE / ".clips"
 FPS = 30
 SR = 44_100
+# Bump when the way clips are built changes, so cached clips are rebuilt.
+GENERATOR_VERSION = 2
 
 
 class NeedsVoice(Exception):
@@ -51,8 +53,26 @@ def _draw_text(img: np.ndarray, spec: dict) -> None:
     scale = spec["size"] * h / 22
     thickness = max(1, round(scale * 2.2))
     org = (int(spec["x"] * w), int(spec["y"] * h + spec["size"] * h))
-    cv2.putText(img, spec["text"], org, cv2.FONT_HERSHEY_SIMPLEX, scale, (0, 0, 0), thickness + 4, cv2.LINE_AA)
-    cv2.putText(img, spec["text"], org, cv2.FONT_HERSHEY_SIMPLEX, scale, (255, 255, 255), thickness, cv2.LINE_AA)
+    cv2.putText(
+        img,
+        spec["text"],
+        org,
+        cv2.FONT_HERSHEY_SIMPLEX,
+        scale,
+        (0, 0, 0),
+        thickness + 4,
+        cv2.LINE_AA,
+    )
+    cv2.putText(
+        img,
+        spec["text"],
+        org,
+        cv2.FONT_HERSHEY_SIMPLEX,
+        scale,
+        (255, 255, 255),
+        thickness,
+        cv2.LINE_AA,
+    )
 
 
 def _music(seconds: float, path: Path) -> None:
@@ -79,7 +99,8 @@ def _music(seconds: float, path: Path) -> None:
 
 
 def _key(case: dict) -> str:
-    return hashlib.sha1(json.dumps(case, sort_keys=True).encode()).hexdigest()[:10]
+    payload = json.dumps({"v": GENERATOR_VERSION, "case": case}, sort_keys=True)
+    return hashlib.sha1(payload.encode()).hexdigest()[:10]
 
 
 def build(case: dict) -> Path:
@@ -120,7 +141,15 @@ def build(case: dict) -> Path:
             else:
                 src = None
             if src:
-                cmd += ["-i", str(src), "-af", f"volume={case.get('gain_db', 0)}dB,apad"]
+                level = (
+                    # About -14 LUFS with a hard limiter at -4.4 dBFS: AAC encoding
+                    # overshoots peaks by ~1 dB and the check measures the decoded file.
+                    # (ffmpeg's single-pass loudnorm misses its targets on short clips.)
+                    "volume=6dB,alimiter=limit=0.6:level=false"
+                    if case.get("mastered")
+                    else f"volume={case.get('gain_db', 0)}dB"
+                )
+                cmd += ["-i", str(src), "-af", f"{level},apad"]
             else:
                 cmd += ["-f", "lavfi", "-i", "anullsrc=r=44100:cl=mono"]
             cmd += ["-c:a", "aac", "-shortest"]
