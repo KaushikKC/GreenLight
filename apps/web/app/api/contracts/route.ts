@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { createContractInput, MAX_CONTRACT_BYTES, ownsContractKey } from "@/lib/contract-schema";
 import { createContract } from "@/lib/contracts";
+import { checkLimit, limitResponse } from "@/lib/limits-server";
 import { getOrCreateUserId } from "@/lib/session";
 import { objectSize } from "@/lib/storage";
 
@@ -30,6 +31,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "too_large" }, { status: 413 });
     }
   }
+  const limit = await checkLimit(userId, "contracts");
+  if (!limit.ok) return limitResponse(limit);
   const contract = await createContract(userId, parsed.data);
   return NextResponse.json({ id: contract.id }, { status: 201 });
 }

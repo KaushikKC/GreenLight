@@ -3,6 +3,7 @@ import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 
 import { contractKey, contractUploadRequest } from "@/lib/contract-schema";
+import { checkLimit, limitResponse } from "@/lib/limits-server";
 import { getOrCreateUserId } from "@/lib/session";
 import { presignUpload } from "@/lib/storage";
 
@@ -16,6 +17,8 @@ export async function POST(request: Request) {
     );
   }
   const userId = await getOrCreateUserId();
+  const limit = await checkLimit(userId, "contracts");
+  if (!limit.ok) return limitResponse(limit);
   const key = contractKey(userId, randomUUID(), parsed.data.contentType);
   return NextResponse.json({ key, url: await presignUpload(key, parsed.data.contentType) });
 }
