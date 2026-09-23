@@ -1,0 +1,24 @@
+{
+  "_note": "Brand/product categories for exclusivity matching. The LLM maps free-text contract categories onto these ids; the web checker maps free text with the keywords. Edit freely.",
+  "categories": [
+    {"id": "skincare", "label": "Skincare", "keywords": ["skincare", "skin care", "serum", "moisturiser", "moisturizer", "sunscreen", "spf", "cleanser", "toner", "retinol"]},
+    {"id": "haircare", "label": "Haircare", "keywords": ["haircare", "hair care", "shampoo", "conditioner", "hair oil", "hair styling"]},
+    {"id": "makeup", "label": "Makeup", "keywords": ["makeup", "make-up", "cosmetics", "foundation", "lipstick", "mascara", "concealer"]},
+    {"id": "fragrance", "label": "Fragrance", "keywords": ["fragrance", "perfume", "cologne", "scent"]},
+    {"id": "supplements", "label": "Supplements", "keywords": ["supplement", "vitamin", "protein powder", "collagen", "gummies", "wellness"]},
+    {"id": "food", "label": "Food", "keywords": ["food", "snack", "meal kit", "grocery", "restaurant", "cereal"]},
+    {"id": "beverages", "label": "Drinks (non-alcoholic)", "keywords": ["beverage", "drink", "energy drink", "soda", "coffee", "tea", "juice", "water"]},
+    {"id": "alcohol", "label": "Alcohol", "keywords": ["alcohol", "beer", "wine", "spirits", "vodka", "gin", "whisky", "whiskey"]},
+    {"id": "fashion", "label": "Fashion", "keywords": ["fashion", "clothing", "apparel", "clothes", "jewellery", "jewelry", "accessories"]},
+    {"id": "footwear", "label": "Footwear", "keywords": ["footwear", "shoes", "sneakers", "trainers", "boots"]},
+    {"id": "fitness", "label": "Fitness", "keywords": ["fitness", "gym", "workout", "sportswear", "activewear", "athleisure"]},
+    {"id": "tech", "label": "Tech", "keywords": ["tech", "technology", "phone", "smartphone", "laptop", "headphones", "gadget", "electronics", "software", "app"]},
+    {"id": "gaming", "label": "Gaming", "keywords": ["gaming", "video game", "console", "esports"]},
+    {"id": "finance", "label": "Finance", "keywords": ["finance", "bank", "banking", "fintech", "credit card", "investing", "crypto", "insurance", "loan"]},
+    {"id": "travel", "label": "Travel", "keywords": ["travel", "airline", "hotel", "holiday", "vacation", "booking"]},
+    {"id": "home", "label": "Home", "keywords": ["home", "homeware", "furniture", "decor", "cleaning", "kitchen"]},
+    {"id": "pets", "label": "Pets", "keywords": ["pet", "pets", "dog", "cat", "pet food"]},
+    {"id": "parenting", "label": "Baby & parenting", "keywords": ["baby", "parenting", "kids", "toddler", "nappies", "diapers"]},
+    {"id": "other", "label": "Other", "keywords": []}
+  ]
+}
