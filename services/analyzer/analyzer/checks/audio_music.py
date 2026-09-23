@@ -4,6 +4,20 @@ from analyzer.checks.base import CheckSpec
 from analyzer.models import AnalysisContext, CheckResult
 
 
+def music_estimate(ctx: AnalysisContext) -> float:
+    """Share of the video that's probably music.
+
+    VAD alone mistakes tonal music for speech, so when we have a transcript,
+    "speech" that Whisper couldn't turn into words counts as music too.
+    """
+    audio, transcript = ctx.audio, ctx.transcript
+    ratio = audio.music_ratio
+    if transcript is not None and ctx.probe.duration_s > 0:
+        spoken = sum(s.end - s.start for s in transcript.segments) / ctx.probe.duration_s
+        ratio += max(0.0, audio.speech_ratio - spoken)
+    return min(ratio, 1.0)
+
+
 def check(ctx: AnalysisContext) -> CheckResult:
     if not ctx.probe.has_audio:
         return CheckResult(
@@ -15,7 +29,7 @@ def check(ctx: AnalysisContext) -> CheckResult:
             explanation="No audio track, so no music to check.",
             estimate=True,
         )
-    ratio = ctx.audio.music_ratio
+    ratio = music_estimate(ctx)
     evidence = {"music_ratio": round(ratio, 2), "warn_above": ctx.rules.music_warn_ratio}
     if ratio < ctx.rules.music_warn_ratio:
         return CheckResult(

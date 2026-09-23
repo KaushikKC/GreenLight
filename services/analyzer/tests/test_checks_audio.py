@@ -57,3 +57,25 @@ class TestVoiceClarity:
 
     def test_no_speech_is_na(self):
         assert audio_voice_clarity.check(ctx(audio=AudioStats())).status == "na"
+
+
+class TestMusicWithTranscript:
+    def test_untranscribed_vad_speech_counts_as_music(self):
+        from analyzer.models import Transcript
+
+        # VAD thinks 95% is speech, but Whisper found no words: it's music.
+        a = AudioStats(
+            speech_ratio=0.95, music_ratio=0.02, speech_segments=[(0, 7)], voice_band_ratio=0.3
+        )
+        r = audio_music.check(ctx(audio=a, transcript=Transcript()))
+        assert r.status == "warn"
+        assert audio_voice_clarity.check(ctx(audio=a, transcript=Transcript())).status == "na"
+
+    def test_transcribed_speech_is_not_music(self):
+        from tests.factories import transcript
+
+        a = AudioStats(
+            speech_ratio=0.5, music_ratio=0.02, speech_segments=[(0, 15)], voice_band_ratio=0.8
+        )
+        t = transcript((0.0, 16.0, "this is me talking about my routine"))
+        assert audio_music.check(ctx(audio=a, transcript=t)).status == "pass"

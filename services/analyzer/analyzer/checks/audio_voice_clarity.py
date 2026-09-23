@@ -6,7 +6,8 @@ from analyzer.models import AnalysisContext, CheckResult
 
 def check(ctx: AnalysisContext) -> CheckResult:
     a = ctx.audio
-    if not ctx.probe.has_audio or not a.speech_segments or a.voice_band_ratio is None:
+    no_words = ctx.transcript is not None and not ctx.transcript.words
+    if not ctx.probe.has_audio or not a.speech_segments or a.voice_band_ratio is None or no_words:
         return CheckResult(
             id="audio.voice_clarity",
             group="audio",
