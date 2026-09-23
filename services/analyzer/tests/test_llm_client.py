@@ -137,3 +137,20 @@ class TestProviderSelection:
         self.mp.setattr(self.s, "llm_provider", "openai")
         with pytest.raises(LLMError, match="Unknown LLM_PROVIDER"):
             provider_from_settings()
+
+
+def test_logs_the_model_that_actually_answered():
+    from analyzer.llm.types import Reply, Usage
+
+    fake = FakeProvider(
+        Reply(
+            output={"verdict": "ok", "strength": 3},
+            raw_text="{}",
+            usage=Usage(),
+            model="backup-model",
+        )
+    )
+    llm = LLM(provider=fake)
+    result = call(llm)
+    assert result.model == "backup-model"
+    assert llm.calls[0]["model"] == "backup-model"

@@ -71,11 +71,19 @@ def provider_from_settings() -> Provider:
             api_key=s.gemini_api_key,
             http_options=types.HttpOptions(
                 timeout=int(s.llm_timeout_s * 1000),  # milliseconds
-                retry_options=types.HttpRetryOptions(attempts=3),
+                # Retry brief server hiccups only: a retried 429 burns quota.
+                retry_options=types.HttpRetryOptions(
+                    attempts=2, http_status_codes=[500, 502, 503, 504]
+                ),
             ),
         )
+        # GEMINI_MODEL_VISION may be a comma-separated fallback list.
+        models = [m.strip() for m in (s.gemini_model_vision or "").split(",") if m.strip()]
         return GeminiProvider(
-            client, vision_model=s.gemini_model_vision, free_tier=s.gemini_free_tier
+            client,
+            vision_model=models[0] if models else None,
+            free_tier=s.gemini_free_tier,
+            fallback_models=models[1:],
         )
 
     if choice == "replay":
@@ -167,8 +175,11 @@ class LLM:
                 max_tokens=max_tokens,
             )
             latency_ms = round((time.monotonic() - started) * 1000)
+            served_by = reply.model or model
             call_cost += (
-                self._log(model=model, purpose=purpose, usage=reply.usage, latency_ms=latency_ms)
+                self._log(
+                    model=served_by, purpose=purpose, usage=reply.usage, latency_ms=latency_ms
+                )
                 or 0.0
             )
 
@@ -185,7 +196,7 @@ class LLM:
                     problem = f"Your {name} answer was invalid: {e}. Return it again with corrected values."
                 else:
                     return ToolResult(
-                        output=parsed, model=model, attempts=attempt, cost_usd=call_cost
+                        output=parsed, model=served_by, attempts=attempt, cost_usd=call_cost
                     )
 
             log.warning("llm %s attempt %d invalid: %s", purpose, attempt, problem[:300])
