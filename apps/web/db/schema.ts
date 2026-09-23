@@ -146,6 +146,7 @@ export const contractStatus = pgEnum("contract_status", [
   "extracting",
   "needs_review",
   "confirmed",
+  "error",
 ]);
 
 export const contracts = pgTable("contracts", {
@@ -154,6 +155,7 @@ export const contracts = pgTable("contracts", {
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
   storageKey: text("storage_key"),
+  filename: text("filename"),
   source: contractSource("source").notNull(),
   rawText: text("raw_text"),
   extracted: jsonb("extracted"),
@@ -170,6 +172,8 @@ export const deals = pgTable("deals", {
     onDelete: "set null",
   }),
   brand: text("brand").notNull(),
+  /** Category id from rules/categories.json, used for exclusivity matching. */
+  category: text("category"),
   campaign: text("campaign"),
   signedAt: timestamp("signed_at", { withTimezone: true }),
   feeAmount: numeric("fee_amount", { precision: 12, scale: 2 }),
@@ -193,12 +197,16 @@ export const rightsWindows = pgTable("rights_windows", {
     .notNull()
     .references(() => deals.id, { onDelete: "cascade" }),
   kind: rightsKind("kind").notNull(),
+  /** Usage only: organic reposting vs paid ads. */
+  scope: text("scope"),
   platforms: text("platforms").array(),
   territories: text("territories").array(),
   category: text("category"),
   startsAt: timestamp("starts_at", { withTimezone: true }),
   endsAt: timestamp("ends_at", { withTimezone: true }),
   perpetual: boolean("perpetual").notNull().default(false),
+  /** The contract's wording for the period, e.g. "90 days from first post". */
+  durationText: text("duration_text"),
   sourceQuote: text("source_quote"),
 });
 
