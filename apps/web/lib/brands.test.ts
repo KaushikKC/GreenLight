@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { type Mention, mentionScore, monthlyCounts, rankBrands, recencyDecay } from "./brands";
+import { type Mention, mentionScore, monthlyCounts, platformLabel, rankBrands, recencyDecay } from "./brands";
 
 const TODAY = "2026-09-23";
 
@@ -101,5 +101,13 @@ describe("monthlyCounts", () => {
     expect(counts[11]).toBe(2);
     expect(counts[9]).toBe(1);
     expect(counts.reduce((a, b) => a + b)).toBe(3);
+  });
+});
+
+describe("platformLabel", () => {
+  it("uses proper platform names", () => {
+    expect(platformLabel("tiktok")).toBe("TikTok");
+    expect(platformLabel("youtube")).toBe("YouTube");
+    expect(platformLabel(null)).toBe("Post");
   });
 });

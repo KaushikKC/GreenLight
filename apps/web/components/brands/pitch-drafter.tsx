@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { platformLabel } from "@/lib/brands";
 import type { PitchDto } from "@/lib/brands-server";
 import { formatDate } from "@/lib/rights";
 
@@ -145,7 +146,7 @@ export function PitchDrafter({ brand }: { brand: string }) {
                   {c.post_ids.map((id) => {
                     const p = postById.get(id);
                     if (!p) return null;
-                    const label = `${p.platform ?? "post"}${p.postedAt ? `, ${formatDate(p.postedAt)}` : ""}`;
+                    const label = `${platformLabel(p.platform)}${p.postedAt ? `, ${formatDate(p.postedAt)}` : ""}`;
                     return p.url ? (
                       <a key={id} href={p.url} target="_blank" rel="noreferrer" className="mr-2 text-xs font-semibold underline underline-offset-4">
                         {label}

@@ -29,6 +29,17 @@ export type Mention = {
   platform: string | null;
 };
 
+const PLATFORM_LABELS: Record<string, string> = {
+  tiktok: "TikTok",
+  instagram: "Instagram",
+  youtube: "YouTube",
+  other: "Post",
+};
+
+export function platformLabel(p: string | null | undefined): string {
+  return (p && PLATFORM_LABELS[p]) || "Post";
+}
+
 export type RankConfig = {
   halfLifeDays: number;
   modalityWeights: Record<Modality, number>;

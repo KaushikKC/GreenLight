@@ -1,6 +1,6 @@
 import { ExternalLink, Heart } from "lucide-react";
 
-import type { BrandSummary } from "@/lib/brands";
+import { type BrandSummary, platformLabel } from "@/lib/brands";
 import { formatDate } from "@/lib/rights";
 
 import { PitchDrafter } from "./pitch-drafter";
@@ -33,7 +33,7 @@ export function BrandCard({ b, rank }: { b: BrandSummary; rank: number }) {
           <li key={m.id} className="rounded-xl bg-muted/60 px-3 py-2 text-sm">
             <p className="italic">&ldquo;{m.evidence}&rdquo;</p>
             <p className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
-              {m.platform ?? "post"}
+              {platformLabel(m.platform)}
               {m.postedAt && ` · ${formatDate(m.postedAt)}`}
               {m.sentiment < 0 && <span className="text-wait">· not a fan here</span>}
               {m.postUrl && (
