@@ -50,9 +50,14 @@ export function ImportPanel({ open: startOpen }: { open: boolean }) {
   }
 
   return (
-    <details open={startOpen} className="group rounded-3xl border bg-card p-5" data-testid="import-panel">
+    <details
+      open={startOpen}
+      className="pop-sm group rounded-[2rem] bg-card p-5"
+      style={{ "--pop": "var(--pink)" } as React.CSSProperties}
+      data-testid="import-panel"
+    >
       <summary className="cursor-pointer list-none">
-        <span className="font-display text-xl font-semibold">Import your posts</span>
+        <span className="font-display text-xl font-extrabold">Import your posts 📥</span>
         <span className="mt-1 block text-sm text-muted-foreground">
           Paste links with captions, or upload a CSV. We only read what you give us: no scraping.
         </span>
@@ -120,7 +125,7 @@ export function ImportPanel({ open: startOpen }: { open: boolean }) {
             {message.text}
           </p>
         )}
-        <Button type="submit" disabled={!text.trim() || busy} className="h-11 rounded-2xl font-semibold">
+        <Button type="submit" disabled={!text.trim() || busy} className="pop-sm pop-press h-11 rounded-2xl bg-pink font-bold text-on-color hover:bg-pink disabled:opacity-60">
           {busy ? "Importing…" : "Import and find brands"}
         </Button>
       </form>

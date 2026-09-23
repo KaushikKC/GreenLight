@@ -25,9 +25,13 @@ export function ProfileCard({ initial }: { initial: Profile }) {
   }
 
   return (
-    <details className="rounded-3xl border bg-card p-5" data-testid="profile-card">
+    <details
+      className="pop-sm rounded-[2rem] bg-card p-5"
+      style={{ "--pop": "var(--sun)" } as React.CSSProperties}
+      data-testid="profile-card"
+    >
       <summary className="cursor-pointer list-none">
-        <span className="font-display text-xl font-semibold">About you</span>
+        <span className="font-display text-xl font-extrabold">About you 🙋</span>
         <span className="mt-1 block text-sm text-muted-foreground">
           {p.niche ? `${p.handle ?? "You"} · ${p.niche}` : "Add your niche and audience so pitches sound like you."}
         </span>
@@ -59,7 +63,7 @@ export function ProfileCard({ initial }: { initial: Profile }) {
             placeholder="e.g. UK women 18–30 into affordable skincare"
           />
         </label>
-        <button type="submit" className="col-span-2 h-10 rounded-2xl bg-ink font-semibold text-paper" disabled={state === "saving"}>
+        <button type="submit" className="pop-sm pop-press col-span-2 h-10 rounded-2xl bg-sun font-bold text-on-color" disabled={state === "saving"}>
           {state === "saved" ? "Saved" : state === "saving" ? "Saving…" : "Save"}
         </button>
       </form>

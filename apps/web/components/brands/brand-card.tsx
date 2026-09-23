@@ -8,13 +8,20 @@ import { Sparkline } from "./sparkline";
 
 const MAX_EVIDENCE = 3;
 
+const CARD_POPS = ["var(--pink)", "var(--sun)", "var(--sky)", "var(--lime)", "var(--tangerine)", "var(--violet)"];
+
 export function BrandCard({ b, rank }: { b: BrandSummary; rank: number }) {
   return (
-    <li className="rounded-3xl border bg-card p-5" data-testid="brand-card" data-brand={b.brand}>
+    <li
+      className="pop rounded-[2rem] bg-card p-5"
+      style={{ "--pop": CARD_POPS[(rank - 1) % CARD_POPS.length] } as React.CSSProperties}
+      data-testid="brand-card"
+      data-brand={b.brand}
+    >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-xs font-semibold text-muted-foreground">#{rank}</p>
-          <h3 className="truncate font-display text-xl font-semibold">{b.brand}</h3>
+          <p className="sticker w-fit bg-card text-[11px]">#{rank}{rank === 1 ? " 🏆" : ""}</p>
+          <h3 className="mt-1.5 truncate font-display text-2xl font-extrabold">{b.brand}</h3>
           <p className="text-sm text-muted-foreground">
             {b.organicMentions} organic mention{b.organicMentions === 1 ? "" : "s"}
             {b.sponsoredMentions > 0 && ` · ${b.sponsoredMentions} sponsored`}
@@ -22,7 +29,7 @@ export function BrandCard({ b, rank }: { b: BrandSummary; rank: number }) {
           </p>
         </div>
         <div className="flex shrink-0 flex-col items-end gap-1">
-          <span className="inline-flex items-center gap-1 rounded-full bg-go-soft px-2.5 py-1 text-sm font-semibold text-go" title="Love score">
+          <span className="sticker bg-pink text-sm" title="Love score">
             <Heart className="size-3.5 fill-current" aria-hidden /> {b.loveScore.toFixed(2)}
           </span>
           <Sparkline values={b.sparkline} label={`${b.brand} mentions per month over the last year`} />

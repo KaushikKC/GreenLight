@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { AppNav } from "@/components/app-nav";
 import { BrandCard } from "@/components/brands/brand-card";
+import { PageHero } from "@/components/page-hero";
 import { ImportPanel } from "@/components/brands/import-panel";
 import { ProfileCard } from "@/components/brands/profile-card";
 import { ScanStatusBar } from "@/components/brands/scan-status";
@@ -26,13 +27,10 @@ export default async function BrandsPage() {
         <AppNav active="brands" />
       </SiteHeader>
       <main className="mx-auto flex w-full max-w-md flex-1 flex-col gap-5 px-4 pt-2 pb-10 md:max-w-2xl">
-        <header className="flex flex-col gap-2">
-          <h1 className="text-3xl font-bold tracking-tight">Brands you already love</h1>
-          <p className="text-muted-foreground">
-            The brands you mention on your own, ranked by how often, how recently and how warmly. Pitch
-            them with your real posts as proof.
-          </p>
-        </header>
+        <PageHero feature="brands" title="Brands you already love">
+          The brands you mention on your own, ranked by how often, how recently and how warmly. Pitch
+          them with your real posts as proof.
+        </PageHero>
 
         <ScanStatusBar key={`${status.state}-${status.unscanned}-${status.posts}`} initial={status} />
         <ImportPanel open={status.posts === 0} />

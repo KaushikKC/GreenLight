@@ -73,7 +73,7 @@ export function PitchDrafter({ brand }: { brand: string }) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="inline-flex h-10 items-center gap-2 rounded-2xl bg-ink px-4 text-sm font-semibold text-paper"
+        className="pop-sm pop-press inline-flex h-11 items-center gap-2 rounded-2xl bg-pink px-4 text-sm font-bold text-on-color"
         data-testid="draft-pitch"
       >
         <Mail className="size-4" /> Draft pitch
@@ -85,7 +85,7 @@ export function PitchDrafter({ brand }: { brand: string }) {
   const postById = new Map(pitch?.posts.map((p) => [p.id, p]) ?? []);
 
   return (
-    <section className="mt-2 flex flex-col gap-3 rounded-2xl border bg-background p-4" data-testid="pitch-panel">
+    <section className="mt-2 flex flex-col gap-3 rounded-3xl border-2 border-ink bg-pink-soft/60 p-4" data-testid="pitch-panel">
       <div className="flex items-center justify-between">
         <h4 className="font-sans font-semibold">Pitch {brand}</h4>
         <button type="button" onClick={() => setOpen(false)} aria-label="Close pitch" className="rounded-full p-1 hover:bg-muted">
@@ -99,7 +99,7 @@ export function PitchDrafter({ brand }: { brand: string }) {
             {ASKS.map(([value, label]) => (
               <label
                 key={value}
-                className="flex h-10 cursor-pointer items-center justify-center rounded-xl border text-sm font-medium has-[:checked]:border-ink has-[:checked]:bg-ink has-[:checked]:text-paper"
+                className="flex h-10 cursor-pointer items-center justify-center rounded-xl border-2 border-ink/20 bg-card text-sm font-bold has-[:checked]:border-ink has-[:checked]:bg-pink has-[:checked]:text-on-color"
               >
                 <input type="radio" name={`ask-${brand}`} value={value} checked={ask === value} onChange={() => setAsk(value)} className="sr-only" />
                 {label}
@@ -116,7 +116,7 @@ export function PitchDrafter({ brand }: { brand: string }) {
             type="button"
             onClick={draft}
             disabled={drafting}
-            className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-ink text-sm font-semibold text-paper"
+            className="pop-sm pop-press inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-pink text-sm font-bold text-on-color"
             data-testid="draft-submit"
           >
             {drafting ? (
@@ -164,7 +164,7 @@ export function PitchDrafter({ brand }: { brand: string }) {
           <button
             type="button"
             onClick={copy}
-            className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border bg-card text-sm font-semibold"
+            className="pop-sm pop-press inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-sun text-sm font-bold text-on-color"
           >
             {copied ? <Check className="size-4 text-go" /> : <Copy className="size-4" />}
             {copied ? "Copied" : "Copy subject + email"}
