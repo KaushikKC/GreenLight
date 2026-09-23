@@ -29,6 +29,8 @@ class Settings(BaseSettings):
     # (Anthropic first). Model names always come from env; never hard-code them.
     llm_provider: str | None = None
     llm_timeout_s: float = 120.0
+    # LLM_PROVIDER=replay reads saved answers from here (tests and demo seed).
+    llm_replay_dir: str | None = None
 
     anthropic_api_key: str | None = None
     model_vision: str | None = None
