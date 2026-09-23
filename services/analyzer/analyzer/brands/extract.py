@@ -51,8 +51,13 @@ def _norm(s: str) -> str:
 def batch_text(posts: list[PostIn]) -> str:
     blocks = []
     for i, p in enumerate(posts, start=1):
-        meta = ", ".join(x for x in (p.platform, p.posted_at.isoformat() if p.posted_at else None) if x)
-        lines = [f"Post {i}" + (f" ({meta})" if meta else "") + ":", f"Caption: {p.caption or '(none)'}"]
+        meta = ", ".join(
+            x for x in (p.platform, p.posted_at.isoformat() if p.posted_at else None) if x
+        )
+        lines = [
+            f"Post {i}" + (f" ({meta})" if meta else "") + ":",
+            f"Caption: {p.caption or '(none)'}",
+        ]
         if p.transcript:
             lines.append(f"Transcript: {p.transcript}")
         if p.ocr_text:
@@ -68,7 +73,9 @@ def extract_mentions(llm: LLM, posts: list[PostIn]) -> list[FoundMention]:
         purpose="brand_mentions",
         model=llm.provider.fast_model,
         system=load_prompt(MENTIONS_PROMPT),
-        parts=[Text(batch_text(posts) + "\n\nRecord the brand mentions with record_brand_mentions.")],
+        parts=[
+            Text(batch_text(posts) + "\n\nRecord the brand mentions with record_brand_mentions.")
+        ],
         output=BrandMentions,
         name="record_brand_mentions",
         description="Every brand mentioned in these posts, with the exact words as evidence.",
