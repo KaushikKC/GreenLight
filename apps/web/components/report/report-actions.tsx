@@ -44,7 +44,7 @@ export function ReportActions({ id }: { id: string }) {
           type="button"
           onClick={share}
           disabled={state === "busy"}
-          className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl border bg-card font-semibold"
+          className="pop-sm pop-press inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-sky font-bold text-on-color"
           data-testid="share"
         >
           {state === "copied" ? <Check className="size-4 text-go" /> : <Link2 className="size-4" />}
@@ -52,7 +52,7 @@ export function ReportActions({ id }: { id: string }) {
         </button>
         <Link
           href={`/preflight/new?parent=${id}`}
-          className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-ink font-semibold text-paper"
+          className="pop-sm pop-press inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-lime font-bold text-on-color"
           data-testid="recheck"
         >
           <RotateCcw className="size-4" />

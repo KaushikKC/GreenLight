@@ -16,9 +16,13 @@ export function RecheckDiff({
 }) {
   const d = diffChecks(previous, current);
   return (
-    <section className="rounded-3xl border-2 border-go bg-go-soft/60 p-5" data-testid="recheck-diff">
-      <p className="text-xs font-semibold uppercase tracking-wide text-go">Re-check</p>
-      <p className="mt-1 font-display text-xl font-semibold" data-testid="diff-summary">
+    <section
+      className="pop animate-pop-in rounded-[2rem] bg-[linear-gradient(135deg,var(--lime-soft),var(--sky-soft))] p-5"
+      style={{ "--pop": "var(--lime)" } as React.CSSProperties}
+      data-testid="recheck-diff"
+    >
+      <p className="sticker bg-lime">🔁 Re-check</p>
+      <p className="mt-2 font-display text-2xl font-extrabold" data-testid="diff-summary">
         {diffSummary(d)}
       </p>
       {previousScore !== null && (
