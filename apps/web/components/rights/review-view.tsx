@@ -60,12 +60,15 @@ export function ReviewView({ initial }: { initial: ContractDto }) {
 
   if (c.status === "confirmed") {
     return (
-      <section className="mx-auto w-full max-w-md rounded-3xl border border-go/40 bg-go-soft p-5">
-        <p className="font-semibold">This contract is already in your wallet.</p>
-        <Link href="/rights" className="mt-3 inline-block font-semibold underline underline-offset-4">
-          Go to wallet
-        </Link>
-      </section>
+      <div className="flex flex-col gap-4">
+        <section className="rounded-3xl border border-go/40 bg-go-soft p-5">
+          <p className="font-semibold">This contract is saved in your wallet.</p>
+          <Link href="/rights" className="mt-3 inline-block font-semibold underline underline-offset-4">
+            Go to wallet
+          </Link>
+        </section>
+        <SourcePanel text={c.rawText} fileUrl={c.fileUrl} quote={null} />
+      </div>
     );
   }
 
