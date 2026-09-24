@@ -4,6 +4,8 @@
 
 Every flag shows **evidence** (a timestamp, frame, quote or contract clause) and a **concrete fix**. No vague AI verdicts.
 
+https://github.com/user-attachments/assets/b11a40ef-4ac6-4e5c-b822-7e337b84eb00
+
 ## What it does
 
 | | |
